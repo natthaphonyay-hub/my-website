@@ -58,15 +58,27 @@ nav a:hover { color: var(--green); }
 
 .badges { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 36px 0 0; padding: 0; color: var(--green); font-family: "Prompt", sans-serif; font-weight: 500; font-size: 16px; }
 
-/* Floating leaves */
-.leaves { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.leaf { position: absolute; opacity: .35; animation: float 14s ease-in-out infinite; }
-.leaf svg { width: 100%; height: 100%; }
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-30px) rotate(12deg); }
+/* Growing plai plant */
+.leaves { position: absolute; z-index: 1; pointer-events: none; right: 3%; bottom: 0; top: 4%; width: min(46%, 520px); }
+.leaves svg { width: 100%; height: 100%; overflow: visible; }
+.draw path, .draw ellipse { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw var(--t) ease-out var(--d) forwards; }
+.leafy path:first-child { fill-opacity: 0; animation: draw var(--t) ease-out var(--d) forwards, fillin .8s ease var(--d) forwards; }
+.draw ellipse { fill-opacity: 0; animation: draw var(--t) ease-out var(--d) forwards, fillin .6s ease calc(var(--d) + .3s) forwards; }
+.bloom { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; animation: bloom var(--t) cubic-bezier(.3,1.6,.5,1) var(--d) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fillin { to { fill-opacity: 1; } }
+@keyframes bloom { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
+.sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 6s ease-in-out 7.5s infinite; }
+@keyframes sway { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(1.4deg); } }
+.falling path { opacity: 0; transform-box: fill-box; transform-origin: center; animation: fall 12s ease-in var(--dly) infinite; }
+@keyframes fall {
+  0% { opacity: 0; transform: translate(200px, 160px) rotate(0deg); }
+  8% { opacity: 1; }
+  55% { opacity: .9; }
+  65%, 100% { opacity: 0; transform: translate(calc(200px + var(--x)), 530px) rotate(220deg); }
 }
-
+.hero .leaves { top: 2%; bottom: 12%; }
+.page-hero .leaves { top: 8%; bottom: 0; width: 220px; right: 4%; }
 
 /* Sections */
 section { padding: 96px 0 0; }
@@ -169,7 +181,8 @@ header.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
   section { padding-top: 72px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .leaf { animation: none; }
+  .draw path, .draw ellipse, .leafy path:first-child, .bloom, .sway, .falling path { animation: none; stroke-dashoffset: 0; fill-opacity: 1; opacity: 1; transform: none; }
+  .falling { display: none; }
   .reveal { opacity: 1; transform: none; }
 }
 
@@ -272,4 +285,8 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
 @media (max-width: 860px) {
   .line-fab { width: 56px; height: 56px; padding: 0; display: grid; place-items: center; font-size: 26px; right: 16px; bottom: 88px; }
   .line-fab span { display: none; }
+}
+@media (max-width: 860px) {
+  .hero .leaves { width: 75%; right: -14%; opacity: .3; }
+  .page-hero .leaves { width: 130px; right: 0; opacity: .5; }
 }

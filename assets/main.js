@@ -314,26 +314,6 @@ async function loadSheets() {
   }
 
   /* ---------- Effects ---------- */
-  const leaves = $('#leaves');
-  if (leaves) {
-    const leafSvg = '<svg viewBox="0 0 64 64" fill="none" stroke="#1F7A4D" stroke-width="2"><path d="M8 56C8 28 28 8 56 8c0 28-20 48-48 48z"/><path d="M8 56L40 24"/></svg>';
-    const spots = leaves.dataset.few ? [[70, 18, 44, 0], [88, 52, 32, -5]] : [[8, 20, 48, 0], [78, 14, 64, -4], [62, 58, 40, -8], [90, 62, 36, -2], [30, 70, 32, -6]];
-    spots.forEach(([x, y, s, d]) => {
-      const el = document.createElement('div');
-      el.className = 'leaf';
-      el.style.cssText = `left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation-delay:${d}s`;
-      el.innerHTML = leafSvg;
-      leaves.appendChild(el);
-    });
-    leaves.style.transition = 'transform .4s ease-out';
-    if (!reduce && hoverable) {
-      leaves.parentElement.addEventListener('mousemove', e => {
-        const px = e.clientX / innerWidth - .5, py = e.clientY / innerHeight - .5;
-        leaves.style.transform = `translate(${px * -24}px, ${py * -24}px)`;
-      });
-    }
-  }
-
   function bindTilt() {
     if (reduce || !hoverable) return;
     document.querySelectorAll('.card:not([data-tilt])').forEach(c => {

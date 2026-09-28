@@ -315,7 +315,7 @@ async function loadSheets() {
   const lineLink = $('#c-line-link'); if (lineLink) lineLink.href = SITE.lineUrl;
   const mail = $('#c-email-link'); if (mail) mail.href = 'mailto:' + SITE.email;
   const mapLink = $('#c-map-link'); if (mapLink) mapLink.href = SITE.mapUrl || 'https://maps.google.com/?q=' + encodeURIComponent(SITE.mapQuery);
-  const map = $('#map'); if (map) map.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(SITE.mapQuery) + '&output=embed';
+  const map = $('#map'); if (map) map.src = SITE.mapEmbed || 'https://maps.google.com/maps?q=' + encodeURIComponent(SITE.mapQuery) + '&output=embed';
 
   /* ---------- Slider (home) ---------- */
   const slider = $('#slider');

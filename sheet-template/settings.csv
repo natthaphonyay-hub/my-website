@@ -1,0 +1,14 @@
+﻿key,value,note
+phone,0XX-XXX-XXXX,เบอร์โทร
+line,@phanaphan,ชื่อ LINE
+lineUrl,#,ลิงก์ LINE เช่น https://lin.ee/xxxx
+email,contact@example.com,อีเมล
+address,ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา อ.พนา จ.อำนาจเจริญ,ที่อยู่
+hours,จันทร์–ศุกร์ 08:30–16:30 น.,เวลาทำการ
+staffUrl,#,ลิงก์ Google Drive ของเจ้าหน้าที่
+mapQuery,โรงพยาบาลพนา อำนาจเจริญ,คำค้นหาแผนที่ Google Maps
+herbsUpdated,25 สิงหาคม 2569,วันที่อัปเดตราคารับซื้อ
+gradeB,70,ราคาเกรด B (% ของเกรด A)
+gradeC,40,ราคาเกรด C (% ของเกรด A)
+gapBonus,10,บวกเพิ่มสำหรับ GAP (%)
+organicBonus,20,บวกเพิ่มสำหรับอินทรีย์ (%)

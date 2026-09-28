@@ -37,11 +37,11 @@
     background: rgba(250, 248, 242, .85); backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
   }
-  .bar { display: flex; align-items: center; justify-content: space-between; height: 72px; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; }
-  .brand img { height: 48px; width: auto; }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 88px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 22px; }
+  .brand img { height: 64px; width: auto; }
   nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; }
-  nav a { font-size: 15px; color: var(--muted); transition: color .2s; }
+  nav a { font-size: 17px; color: var(--muted); transition: color .2s; }
   nav a:hover { color: var(--green); }
   .menu-btn { display: none; background: none; border: 0; font-size: 26px; cursor: pointer; color: var(--text); }
 
@@ -67,6 +67,8 @@
   .btn-primary { background: var(--green); color: #fff; }
   .btn-ghost { background: rgba(255,255,255,.7); color: var(--green); }
 
+  .badges { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 36px 0 0; padding: 0; color: var(--green); font-family: "Prompt", sans-serif; font-weight: 500; font-size: 16px; }
+
   /* Floating leaves */
   .leaves { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
   .leaf { position: absolute; opacity: .35; animation: float 14s ease-in-out infinite; }
@@ -76,17 +78,6 @@
     50% { transform: translateY(-30px) rotate(12deg); }
   }
 
-  /* Trust strip */
-  .trust {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-    margin-top: -56px; position: relative; z-index: 3;
-  }
-  .trust div {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 22px; text-align: center; font-family: "Prompt", sans-serif; font-weight: 500;
-  }
-  .trust span { display: block; font-size: 14px; color: var(--muted); font-family: "Sarabun", sans-serif; font-weight: 400; }
-  .trust b { color: var(--green); font-size: 22px; }
 
   /* Sections */
   section { padding: 96px 0 0; }
@@ -135,17 +126,6 @@
 
   header.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
 
-  /* News ticker */
-  .ticker { background: var(--green); color: #fff; font-size: 15px; overflow: hidden; display: flex; }
-  .ticker .label {
-    flex: none; background: var(--gold); color: #2B2B28; padding: 8px 18px;
-    font-family: "Prompt", sans-serif; font-weight: 500; position: relative; z-index: 1;
-  }
-  .ticker .track { display: flex; gap: 56px; padding: 8px 0 8px 56px; white-space: nowrap; animation: ticker 40s linear infinite; }
-  .ticker:hover .track { animation-play-state: paused; }
-  .ticker a:hover { text-decoration: underline; }
-  @keyframes ticker { to { transform: translateX(-50%); } }
-
   /* News slider */
   .slider { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 21/8; min-height: 320px; background: #ddd; }
   .slide {
@@ -186,14 +166,13 @@
 
   @media (max-width: 860px) {
     nav ul {
-      display: none; position: absolute; top: 72px; left: 0; right: 0;
+      display: none; position: absolute; top: 88px; left: 0; right: 0;
       flex-direction: column; gap: 0; background: var(--bg); border-bottom: 1px solid var(--line);
     }
     nav ul.open { display: flex; }
     nav li a { display: block; padding: 14px 20px; }
     .menu-btn { display: block; }
-    .grid, .trust, .two, .foot { grid-template-columns: 1fr; }
-    .trust { margin-top: -40px; }
+    .grid, .two, .foot { grid-template-columns: 1fr; }
     .slider { aspect-ratio: auto; height: 380px; }
     .slide .txt { padding: 28px 24px 56px; }
     .s-nav { display: none; }
@@ -201,7 +180,7 @@
     section { padding-top: 72px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .leaf, .ticker .track { animation: none; }
+    .leaf { animation: none; }
     .reveal { opacity: 1; transform: none; }
   }
 </style>
@@ -226,10 +205,6 @@
       </ul>
     </nav>
   </div>
-  <div class="ticker">
-    <div class="label">📢 อัปเดต</div>
-    <div class="track" id="ticker"></div>
-  </div>
 </header>
 
 <div class="hero">
@@ -242,15 +217,15 @@
       <a class="btn btn-primary" href="#products">ดูผลิตภัณฑ์</a>
       <a class="btn btn-ghost" href="#contact">ติดต่อเรา</a>
     </div>
+    <ul class="badges" id="about">
+      <li>✓ มาตรฐาน GMP</li>
+      <li>✓ ก่อตั้งปี 2536</li>
+      <li>✓ ทีมผู้เชี่ยวชาญและวิจัยพัฒนา</li>
+    </ul>
   </div>
 </div>
 
 <div class="wrap">
-  <div class="trust" id="about">
-    <div><b>GMP</b><span>ผลิตตามมาตรฐาน</span></div>
-    <div><b class="count" data-to="2536">2536</b><span>ก่อตั้งตั้งแต่ปี</span></div>
-    <div><b>R&amp;D</b><span>ทีมผู้เชี่ยวชาญและวิจัยพัฒนา</span></div>
-  </div>
 
   <section class="reveal">
     <div class="head">
@@ -374,16 +349,6 @@
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // News ticker (list duplicated so the loop is seamless)
-  const news = [
-    'ปรับราคาผลิตภัณฑ์บางรายการ มีผล 1 ต.ค. 2569',
-    'ผ่านการตรวจประเมินมาตรฐาน GMP ประจำปี',
-    'เปิดรับซื้อสมุนไพรจากเกษตรกรในชุมชน',
-    'บทความใหม่: ฟ้าทะลายโจร ใช้อย่างไรให้ปลอดภัย'
-  ];
-  const items = news.map(n => `<a href="#news">🌿 ${n}</a>`).join('');
-  document.getElementById('ticker').innerHTML = items + items;
-
   // Header shadow on scroll
   const header = document.querySelector('header');
   addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 10), { passive: true });
@@ -421,19 +386,6 @@
     x0 = null;
   });
   go(0);
-
-  // Count-up for the founding year
-  const counter = document.querySelector('.count');
-  new IntersectionObserver(([e], o) => {
-    if (!e.isIntersecting || reduce) return;
-    o.disconnect();
-    const to = +counter.dataset.to, from = to - 60, t0 = performance.now();
-    (function tick(t) {
-      const p = Math.min((t - t0) / 1200, 1);
-      counter.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) requestAnimationFrame(tick);
-    })(t0);
-  }).observe(counter);
 
   // 3D tilt on product cards (mouse only)
   if (!reduce && matchMedia('(hover: hover)').matches) {

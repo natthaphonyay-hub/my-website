@@ -13,7 +13,7 @@ const SITE = {
   address: 'ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา อ.พนา จ.อำนาจเจริญ',
   hours: 'จันทร์–ศุกร์ 08:30–16:30 น.',
   staffUrl: '#', // Google Drive folder shared with staff
-  mapQuery: 'โรงพยาบาลพนา อำนาจเจริญ', // or coordinates, e.g. '15.6789,104.8765'
+  mapQuery: '15.690761941948466,104.83965918465745', // place name or coordinates
   mapUrl: 'https://maps.app.goo.gl/HVPosHJZ9CvTgshn6',
   herbsUpdated: '25 สิงหาคม 2569',
   gradeB: 70,       // % of grade A price

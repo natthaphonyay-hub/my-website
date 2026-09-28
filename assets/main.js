@@ -111,7 +111,7 @@ async function loadSheets() {
       <div class="copy">© 2569 พนาพรรณ · Since 2536 PHANA PROJECT</div>
     </div>
   </footer>
-  <a class="line-fab" href="${esc(SITE.lineUrl)}" target="_blank" rel="noopener">💬 LINE</a>`;
+  <a class="line-fab" href="${esc(SITE.lineUrl)}" target="_blank" rel="noopener" aria-label="LINE">💬<span> LINE</span></a>`;
 
   $('.menu-btn').onclick = () => $('nav ul').classList.toggle('open');
   const header = $('header');

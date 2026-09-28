@@ -268,3 +268,8 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
   .page-hero .wrap { padding: 48px 20px 40px; }
 }
 .page-hero + .wrap > section:first-child { padding-top: 48px; }
+.nw { white-space: nowrap; }
+@media (max-width: 860px) {
+  .line-fab { width: 56px; height: 56px; padding: 0; display: grid; place-items: center; font-size: 26px; right: 16px; bottom: 88px; }
+  .line-fab span { display: none; }
+}

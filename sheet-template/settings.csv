@@ -12,3 +12,4 @@ gradeB,70,ราคาเกรด B (% ของเกรด A)
 gradeC,40,ราคาเกรด C (% ของเกรด A)
 gapBonus,10,บวกเพิ่มสำหรับ GAP (%)
 organicBonus,20,บวกเพิ่มสำหรับอินทรีย์ (%)
+mapUrl,https://maps.app.goo.gl/HVPosHJZ9CvTgshn6,ลิงก์ Google Maps สำหรับปุ่มนำทาง

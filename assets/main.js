@@ -314,6 +314,7 @@ async function loadSheets() {
   const tel = $('#c-phone-link'); if (tel) tel.href = 'tel:' + SITE.phone.replace(/[^0-9+]/g, '');
   const lineLink = $('#c-line-link'); if (lineLink) lineLink.href = SITE.lineUrl;
   const mail = $('#c-email-link'); if (mail) mail.href = 'mailto:' + SITE.email;
+  const mapLink = $('#c-map-link'); if (mapLink) mapLink.href = SITE.mapUrl || 'https://maps.google.com/?q=' + encodeURIComponent(SITE.mapQuery);
   const map = $('#map'); if (map) map.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(SITE.mapQuery) + '&output=embed';
 
   /* ---------- Slider (home) ---------- */

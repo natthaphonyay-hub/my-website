@@ -13,7 +13,12 @@ const SITE = {
   address: 'ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา อ.พนา จ.อำนาจเจริญ',
   hours: 'จันทร์–ศุกร์ 08:30–16:30 น.',
   staffUrl: '#', // Google Drive folder shared with staff
-  mapQuery: 'โรงพยาบาลพนา อำนาจเจริญ'
+  mapQuery: 'โรงพยาบาลพนา อำนาจเจริญ',
+  herbsUpdated: '25 สิงหาคม 2569',
+  gradeB: 70,       // % of grade A price
+  gradeC: 40,
+  gapBonus: 10,     // % added for GAP-certified
+  organicBonus: 20  // % added for organic
 };
 
 let PRODUCTS = [
@@ -66,4 +71,51 @@ let HISTORY = [
   { year: '25XX', text: 'จัดตั้งศูนย์แพทย์แผนไทยพนา ในโรงพยาบาลพนา' },
   { year: '25XX', text: 'เปิดโรงงานผลิตยาสมุนไพร และได้รับมาตรฐาน GMP' },
   { year: '2569', text: 'ผ่านการตรวจประเมินมาตรฐาน GMP ประจำปี' }
+];
+
+// Herbs bought from farmers. price = grade A price per unit; grades B/C and
+// GAP/organic prices are calculated from the rules in SITE.
+let HERBS = [
+  { code: '1001', name: 'กระเจี๊ยบแดง สด', unit: 'kg', price: 25 },
+  { code: '1002', name: 'กระทือ สด', unit: 'kg', price: 10 },
+  { code: '1003', name: 'กระเทียม สด', unit: 'kg', price: 30 },
+  { code: '1004', name: 'กะเม็ง สด', unit: 'kg', price: 10 },
+  { code: '1084', name: 'กัญชาส่วนก้าน สด', unit: 'kg', price: 580 },
+  { code: '1083', name: 'กัญชาส่วนช่อดอก สด', unit: 'kg', price: 2400 },
+  { code: '1080', name: 'กัญชาส่วนใบ สด', unit: 'kg', price: 720 },
+  { code: '1082', name: 'กัญชาส่วนราก สด', unit: 'kg', price: 1500 },
+  { code: '1081', name: 'กัญชาส่วนลำต้น สด', unit: 'kg', price: 410 },
+  { code: '1005', name: 'ขมิ้นชัน สด', unit: 'kg', price: 20 },
+  { code: '1006', name: 'ขมิ้นอ้อย สด', unit: 'kg', price: 15 },
+  { code: '1008', name: 'ข่าบ้าน สด', unit: 'kg', price: 15 },
+  { code: '1009', name: 'ข่าป่า สด', unit: 'kg', price: 15 },
+  { code: '1012', name: 'ขิง สด', unit: 'kg', price: 45 },
+  { code: '1015', name: 'ชุมเห็ดเทศ สด', unit: 'kg', price: 20 },
+  { code: '1055', name: 'ดอกอัญชัน สด', unit: 'kg', price: 15 },
+  { code: '1019', name: 'ตะไคร้บ้าน สด', unit: 'kg', price: 10 },
+  { code: '1020', name: 'ตะไคร้หอม สด', unit: 'kg', price: 10 },
+  { code: '1021', name: 'เตยหอม สด', unit: 'kg', price: 10 },
+  { code: '1025', name: 'น้ำนมราชสีห์ สด', unit: 'kg', price: 15 },
+  { code: '1026', name: 'บอระเพ็ด สด', unit: 'kg', price: 5 },
+  { code: '1027', name: 'บัวบก สด', unit: 'kg', price: 20 },
+  { code: '1028', name: 'ใบขี้เหล็ก สด', unit: 'kg', price: 20 },
+  { code: '1085', name: 'ใบมะขามแขก สด', unit: 'kg', price: 30 },
+  { code: '1079', name: 'ใบสะเดา สด', unit: 'kg', price: 5 },
+  { code: '1086', name: 'ผักมะขามแขก สด', unit: 'kg', price: 35 },
+  { code: '1032', name: 'เพชรสังฆาต สด', unit: 'kg', price: 10 },
+  { code: '1033', name: 'ไพล สด', unit: 'kg', price: 30 },
+  { code: '1034', name: 'ฟ้าทะลายโจร สด', unit: 'kg', price: 30 },
+  { code: '1036', name: 'มะขามป้อม สด', unit: 'kg', price: 30 },
+  { code: '1037', name: 'มะขามเปียก', unit: 'kg', price: 70 },
+  { code: '1040', name: 'รางจืด สด', unit: 'kg', price: 25 },
+  { code: '1901', name: 'ว่านจอด สด', unit: 'kg', price: 100 },
+  { code: '1906', name: 'ว่านตูบหมูบ สด', unit: 'kg', price: 100 },
+  { code: '1903', name: 'ว่านถอด สด', unit: 'kg', price: 100 },
+  { code: '1902', name: 'ว่านถอนพิษ สด', unit: 'kg', price: 100 },
+  { code: '1905', name: 'ว่านทรง สด', unit: 'kg', price: 100 },
+  { code: '1904', name: 'ว่านหอมแดง สด', unit: 'kg', price: 100 },
+  { code: '1044', name: 'เสลดพังพอนตัวเมีย สด', unit: 'kg', price: 15 },
+  { code: '1045', name: 'หญ้าดอกขาว สด', unit: 'kg', price: 20 },
+  { code: '1046', name: 'หญ้าหนวดแมว สด', unit: 'kg', price: 20 },
+  { code: '1057', name: 'หัวหอมแดง สด', unit: 'kg', price: 25 }
 ];

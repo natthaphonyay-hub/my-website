@@ -43,7 +43,7 @@ async function loadSheets() {
   if (!SHEET_ID) return;
   const url = tab => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
   const get = tab => fetch(url(tab)).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
-  const [settings, products, news, articles, history] = await Promise.all(['settings', 'products', 'news', 'articles', 'history'].map(get));
+  const [settings, products, news, articles, history, herbs] = await Promise.all(['settings', 'products', 'news', 'articles', 'history', 'herbs'].map(get));
 
   if (settings) settings.forEach(r => { if (r.key && r.value) SITE[r.key] = r.value; });
   if (products?.length) PRODUCTS = products.filter(shown).map((r, i) => ({
@@ -58,6 +58,7 @@ async function loadSheets() {
   }));
   if (history?.length) HISTORY = history.filter(shown).filter(r => r.year || r.text)
     .map(r => ({ ...r, image: r.image ? driveImg(r.image) : '' }));
+  if (herbs?.length) HERBS = herbs.filter(shown).filter(r => r.name);
 }
 
 (async function start() {
@@ -66,7 +67,8 @@ async function loadSheets() {
     ['index', 'index.html', 'หน้าแรก'],
     ['about', 'about.html', 'เกี่ยวกับเรา'],
     ['products', 'products.html', 'ผลิตภัณฑ์'],
-    ['knowledge', 'knowledge.html', 'ความรู้'],
+    ['farmers', 'farmers.html', 'รับซื้อสมุนไพร'],
+  ['knowledge', 'knowledge.html', 'ความรู้'],
     ['news', 'news.html', 'ข่าวสาร'],
     ['contact', 'contact.html', 'ติดต่อ']
   ];
@@ -261,6 +263,46 @@ async function loadSheets() {
         ${item.body.map(p => `<p>${esc(p)}</p>`).join('')}
         <a class="back" href="${backHref}">← กลับไปหน้า${backLabel}</a>`;
     }
+  }
+
+  // Herb buying prices (farmers page)
+  const hbody = $('#h-body');
+  if (hbody) {
+    const pct = k => parseFloat(SITE[k]) || 0;
+    // Round down to the nearest 0.5 baht, as in the buying price sheet
+    const half = v => Math.floor(v * 2 + 1e-9) / 2;
+    const money = v => v.toLocaleString('th-TH', { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 1 });
+    const bonus = { normal: 0, gap: pct('gapBonus'), organic: pct('organicBonus') };
+    const isOpen = h => !/ปิด|งด|หยุด|no|closed/i.test(h.status || '');
+    let type = 'normal', q = '', onlyOpen = false;
+    $('#h-updated').textContent = SITE.herbsUpdated || '-';
+    $('#h-gap').textContent = `+${bonus.gap}%`;
+    $('#h-org').textContent = `+${bonus.organic}%`;
+    const draw = () => {
+      const m = 1 + bonus[type] / 100;
+      const list = HERBS.filter(h => (!onlyOpen || isOpen(h)) && (h.name + h.code).includes(q));
+      hbody.innerHTML = list.map(h => {
+        const a = parseFloat(String(h.price).replace(/,/g, '')) || 0;
+        const g = [a, half(a * pct('gradeB') / 100), half(a * pct('gradeC') / 100)].map(v => money(half(v * m)));
+        const open = isOpen(h);
+        return `<tr class="${open ? '' : 'closed'}">
+          <td data-l="รหัส">${esc(h.code)}</td><td data-l="รายการ" class="name">${esc(h.name)}</td><td data-l="หน่วย">${esc(h.unit || 'kg')}</td>
+          <td data-l="เกรด A" class="num a">${g[0]}</td><td data-l="เกรด B" class="num">${g[1]}</td><td data-l="เกรด C" class="num">${g[2]}</td>
+          <td data-l="สถานะ"><span class="status ${open ? 'on' : 'off'}">${esc(h.status || 'เปิดรับ')}</span></td></tr>`;
+      }).join('');
+      $('#h-empty').hidden = list.length > 0;
+    };
+    $('#h-type').addEventListener('click', e => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      type = b.dataset.type;
+      $('#h-type').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+      draw();
+    });
+    $('#h-search').addEventListener('input', e => { q = e.target.value.trim(); draw(); });
+    $('#h-open').addEventListener('change', e => { onlyOpen = e.target.checked; draw(); });
+    $('#h-tel').href = 'tel:' + SITE.phone.replace(/[^0-9+]/g, '');
+    $('#h-line').href = SITE.lineUrl;
+    draw();
   }
 
   // Contact details

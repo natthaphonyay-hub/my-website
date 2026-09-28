@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>รับซื้อสมุนไพร | พนาพรรณ</title>
+<meta name="description" content="รับซื้อสมุนไพรและประกาศจากศูนย์แพทย์แผนไทยพนา">
+<link rel="icon" href="assets/logo-center.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="farmers">
+<div id="site-header"></div>
+
+<main>
+<div class="page-hero">
+  <div class="leaves" id="leaves" data-few="1"></div>
+  <div class="wrap">
+    <div class="crumb" id="crumb"><a href="index.html">หน้าแรก</a> / รับซื้อสมุนไพร</div>
+    <h1 id="a-title">รับซื้อสมุนไพร</h1>
+    <p>ศูนย์แพทย์แผนไทยพนาเปิดรับซื้อสมุนไพรคุณภาพจากเกษตรกรในชุมชน</p>
+    <div class="updated">อัปเดตราคาล่าสุด: <b id="h-updated"></b></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section>
+    <div class="head"><div><div class="eyebrow">PRICES</div><h2>ราคารับซื้อ</h2></div></div>
+    <div class="tools">
+      <div class="chips" id="h-type">
+        <button class="chip on" data-type="normal">ทั่วไป</button>
+        <button class="chip" data-type="gap">GAP <small id="h-gap"></small></button>
+        <button class="chip" data-type="organic">อินทรีย์ <small id="h-org"></small></button>
+      </div>
+      <input class="search" id="h-search" type="search" placeholder="🔍 ค้นหาสมุนไพร..." aria-label="ค้นหาสมุนไพร">
+    </div>
+    <label class="only-open"><input type="checkbox" id="h-open"> แสดงเฉพาะที่เปิดรับซื้อ</label>
+    <div class="table-wrap">
+      <table class="herbs">
+        <thead><tr><th>รหัส</th><th>รายการ</th><th>หน่วย</th><th class="num">เกรด A</th><th class="num">เกรด B</th><th class="num">เกรด C</th><th>สถานะ</th></tr></thead>
+        <tbody id="h-body"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="h-empty" hidden>ไม่พบสมุนไพรที่ค้นหา</p>
+    <p class="note">ราคาเป็นบาทต่อหน่วย เกรดพิจารณาจากการตรวจคุณภาพ ณ วันรับซื้อ ราคาอาจเปลี่ยนแปลงได้ โปรดสอบถามก่อนนำมาส่ง</p>
+  </section>
+
+  <section class="reveal">
+    <div class="head"><div><div class="eyebrow">HOW TO SELL</div><h2>ขั้นตอนการขาย</h2></div></div>
+    <ol class="steps">
+      <li><div class="ic">📞</div><h3>ติดต่อนัดหมาย</h3><p>สอบถามราคาและนัดวันนำสมุนไพรมาส่ง</p></li>
+      <li><div class="ic">🚚</div><h3>นำสมุนไพรมาส่ง</h3><p>นำมาส่งที่ศูนย์แพทย์แผนไทยพนา ตามวันเวลาที่นัด</p></li>
+      <li><div class="ic">🔬</div><h3>ตรวจคุณภาพ</h3><p>ตรวจคัดเกรดและชั่งน้ำหนัก</p></li>
+      <li><div class="ic">💰</div><h3>รับเงิน</h3><p>รับเงินตามเกรดและน้ำหนักจริง</p></li>
+    </ol>
+  </section>
+
+  <section class="reveal">
+    <div class="head"><div><div class="eyebrow">STANDARDS</div><h2>มาตรฐานสมุนไพรที่รับซื้อ</h2></div></div>
+    <ul class="checks">
+      <li>สมุนไพรสด สะอาด ไม่เน่าเสีย</li>
+      <li>ไม่มีเชื้อรา แมลง หรือสิ่งเจือปน</li>
+      <li>ตรงตามชนิดและส่วนที่รับซื้อ</li>
+      <li>สมุนไพร GAP หรืออินทรีย์ ต้องแสดงใบรับรองเพื่อรับราคาพิเศษ</li>
+    </ul>
+  </section>
+
+  <section class="reveal">
+    <div class="cta">
+      <div><h2>สนใจขายสมุนไพร?</h2><p>ติดต่อสอบถามราคาและนัดหมายได้ทุกวันทำการ</p></div>
+      <div class="actions">
+        <a class="btn btn-primary" id="h-tel">📞 โทรสอบถาม</a>
+        <a class="btn btn-line" id="h-line" target="_blank" rel="noopener">💬 ทัก LINE</a>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/plai.js"></script>
+<script src="assets/main.js"></script>
+</body>
+</html>

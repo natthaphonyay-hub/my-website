@@ -175,11 +175,9 @@ async function loadSheets() {
           <span class="tag">${esc(p.cat)}</span>
           <h3>${esc(p.name)}</h3>
           <div class="price">฿${esc(p.price)} <small style="color:var(--muted);font-weight:400;font-size:15px">/ ${esc(p.unit)}</small></div>
-          <dl>
-            <dt>สรรพคุณ</dt><dd>${esc(p.desc)}</dd>
-            <dt>วิธีใช้</dt><dd>${esc(p.use)}</dd>
-            <dt>ข้อควรระวัง</dt><dd>${esc(p.warn)}</dd>
-          </dl>
+          <dl>${[['สรรพคุณ', p.desc], ['วิธีใช้', p.use], ['ข้อควรระวัง', p.warn]]
+          .filter(([, v]) => v).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')
+          || '<dd style="color:var(--muted)">สอบถามสรรพคุณและวิธีใช้ได้ที่ศูนย์ฯ</dd>'}</dl>
           <a class="btn btn-primary" style="margin-top:24px" href="${esc(SITE.lineUrl)}" target="_blank" rel="noopener">สอบถาม / สั่งซื้อทาง LINE</a>
         </div>
       </div>`;

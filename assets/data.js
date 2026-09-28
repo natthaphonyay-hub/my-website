@@ -1,12 +1,12 @@
 // Google Sheet that holds the site content (the long ID in the sheet's URL:
 // docs.google.com/spreadsheets/d/<SHEET_ID>/edit). The sheet must be shared as
 // "Anyone with the link can view". Leave empty to use the sample data below.
-const SHEET_ID = '';
+const SHEET_ID = '1MrbrsD1z2CfhMXfFtPJQJf0DHukzeoL9SNnMZiAEOVk';
 
 // Sample data, used when SHEET_ID is empty or the sheet cannot be loaded.
 
 const SITE = {
-  phone: '0XX-XXX-XXXX',
+  phone: '093 584 7320',
   line: '@phanaphan',
   lineUrl: '#',
   email: 'contact@example.com',
@@ -25,18 +25,50 @@ const SITE = {
 };
 
 let PRODUCTS = [
-  { id: 'fah', name: 'ฟ้าทะลายโจร', cat: 'ยาแคปซูล', price: 80, unit: 'กระปุก 100 แคปซูล', icon: '🌿', color: '#EEF5E6', featured: true,
-    desc: 'บรรเทาอาการเจ็บคอ ไข้หวัด', use: 'รับประทานครั้งละ 2–4 แคปซูล วันละ 4 ครั้ง หลังอาหารและก่อนนอน', warn: 'ไม่ควรใช้ในหญิงตั้งครรภ์ หากอาการไม่ดีขึ้นใน 3 วันควรพบแพทย์' },
-  { id: 'khamin', name: 'ขมิ้นชัน', cat: 'ยาแคปซูล', price: 70, unit: 'กระปุก 100 แคปซูล', icon: '🫚', color: '#FBF4D9', featured: true,
-    desc: 'บรรเทาอาการท้องอืด ท้องเฟ้อ', use: 'รับประทานครั้งละ 2–4 แคปซูล วันละ 4 ครั้ง หลังอาหารและก่อนนอน', warn: 'ผู้ที่มีภาวะท่อน้ำดีอุดตันไม่ควรใช้' },
-  { id: 'prakob', name: 'ลูกประคบสมุนไพร', cat: 'ลูกประคบ', price: 60, unit: 'ลูกละ 200 กรัม', icon: '🍃', color: '#F3EEE4', featured: true,
-    desc: 'คลายกล้ามเนื้อ ลดอาการปวดเมื่อย', use: 'นึ่งให้ร้อน 15–20 นาที แล้วประคบบริเวณที่ปวด', warn: 'ห้ามประคบบริเวณที่มีบาดแผลหรืออักเสบบวมแดงภายใน 24 ชม.' },
-  { id: 'plai', name: 'น้ำมันไพล', cat: 'ยาใช้ภายนอก', price: 90, unit: 'ขวด 30 มล.', icon: '🧴', color: '#EEF2E8',
-    desc: 'บรรเทาอาการเคล็ดขัดยอก ฟกช้ำ', use: 'ทาและนวดเบา ๆ บริเวณที่มีอาการ วันละ 2–3 ครั้ง', warn: 'ใช้ภายนอกเท่านั้น ระวังอย่าให้เข้าตา' },
-  { id: 'yahom', name: 'ยาหอมนวโกฐ', cat: 'ยาลูกกลอน', price: 50, unit: 'ซอง 30 เม็ด', icon: '🌼', color: '#FBF1E1',
-    desc: 'แก้ลมวิงเวียน คลื่นไส้', use: 'รับประทานครั้งละ 1–2 เม็ด เมื่อมีอาการ', warn: 'หญิงตั้งครรภ์ควรปรึกษาแพทย์ก่อนใช้' },
-  { id: 'makham', name: 'มะขามแขก', cat: 'ยาแคปซูล', price: 60, unit: 'กระปุก 60 แคปซูล', icon: '🌱', color: '#EAF3EC',
-    desc: 'บรรเทาอาการท้องผูก', use: 'รับประทานครั้งละ 2–4 แคปซูล ก่อนนอน', warn: 'ไม่ควรใช้ติดต่อกันเป็นเวลานาน' }
+  { id: "5012", name: "ยาหม่องพญายอ 10 กรัม", cat: "ขี้ผึ้ง", price: 20, unit: "10 g x 1 ขวด", icon: "🫙", color: "#FBF4D9", desc: '', use: '', warn: '' },
+  { id: "5010", name: "ยาหม่องไพล 10 กรัม", cat: "ขี้ผึ้ง", price: 20, unit: "10 g x 1 ขวด", icon: "🫙", color: "#FBF4D9", desc: '', use: '', warn: '' },
+  { id: "5053", name: "ครีมพญายอ 5 กรัม", cat: "ครีม", price: 25, unit: "5 g x 1 หลอด", icon: "🧴", color: "#EAF3EC", desc: '', use: '', warn: '' },
+  { id: "5131", name: "ครีมไพล 30 กรัม", cat: "ครีม", price: 32, unit: "30 g x 1 หลอด", icon: "🧴", color: "#EAF3EC", featured: true, desc: '', use: '', warn: '' },
+  { id: "4003", name: "ขมิ้นชัน 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 350, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4028", name: "ผสมเถาวัลย์เปรียง 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 350, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4005", name: "เถาวัลย์เปรียง 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 400, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4028-2", name: "ผสมเพชรสังฆาต 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 350, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4012", name: "ฟ้าทะลายโจร 400 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 350, unit: "400 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4903", name: "ฟ้าทะลายโจร 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 350, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", featured: true, desc: '', use: '', warn: '' },
+  { id: "4905", name: "มะขามแขก 400 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 400, unit: "400 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4904", name: "มะขามแขก 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 400, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "6002", name: "ยาแก้ลมแก้เส้น 500 มิลลิกรัม 100 แคปซูล", cat: "แคปซูล", price: 267.50, unit: "500 mg x 100 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "6007", name: "ยาทำลายพระสุเมรุ 500 มิลลิกรัม 100 แคปซูล", cat: "แคปซูล", price: 188, unit: "500 mg x 100 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "6001", name: "ยาศุขไสยาศน์ 500 มิลลิกรัม 100 แคปซูล", cat: "แคปซูล", price: 209.72, unit: "500 mg x 100 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4069", name: "สหัสธารา 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 500, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "5054", name: "เจลพริก 30 กรัม", cat: "เจล", price: 35, unit: "30 g x 1 หลอด", icon: "🧴", color: "#FBEDE6", desc: '', use: '', warn: '' },
+  { id: "4095", name: "ชาชงกระเจี๊ยบแดง 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4098", name: "ชาชงขิง 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4094", name: "ชาชงชุมเห็ดเทศ 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4099", name: "ชาชงตรีผลา 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4093", name: "ชาชงบำรุงน้ำนม 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4906", name: "ชาชงมะขามแขก 2 กรัม 5 ซอง", cat: "ชาชง", price: 35, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4092", name: "ชาชงรางจืด 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4096", name: "ชาชงหญ้าดอกขาว 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "4097", name: "ชาชงหญ้าหนวดแมว 2 กรัม 5 ซอง", cat: "ชาชง", price: 30, unit: "2 g x 5 ซอง", icon: "🍵", color: "#F4F1E1", desc: '', use: '', warn: '' },
+  { id: "6003", name: "ยาริดสีดวงทวารหนักและโรคผิวหนัง 2 กรัม 15 ซอง", cat: "ผง", price: 350, unit: "2 g x 15 ซอง", icon: "🌿", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4085", name: "ยาหอมเทพจิตร อัดเม็ด 500 มิลลิกรัม 10 กรัม", cat: "เม็ด", price: 35, unit: "500 mg x 10 g", icon: "⚪", color: "#FBF1E1", desc: '', use: '', warn: '' },
+  { id: "4084", name: "ยาหอมนวโกฐ อัดเม็ด 500 มิลลิกรัม 10 กรัม", cat: "เม็ด", price: 35, unit: "500 mg x 10 g", icon: "⚪", color: "#FBF1E1", desc: '', use: '', warn: '' },
+  { id: "4086", name: "ยาหอมอินทจักร์ อัดเม็ด 500 มิลลิกรัม 10 กรัม", cat: "เม็ด", price: 35, unit: "500 mg x 10 g", icon: "⚪", color: "#FBF1E1", desc: '', use: '', warn: '' },
+  { id: "4087", name: "ยาอมประสะมะแว้ง 200 มิลลิกรัม 5 กรัม", cat: "ลูกกลอน", price: 12, unit: "200 mg x 5 g", icon: "🟤", color: "#F3EEE4", desc: '', use: '', warn: '' },
+  { id: "5130", name: "ลูกประคบสมุนไพร 200 กรัม 1 ลูก", cat: "ลูกประคบ", price: 60, unit: "200 g x 1 ลูก", icon: "🍃", color: "#F3EEE4", featured: true, desc: '', use: '', warn: '' },
+  { id: "5048", name: "คาลาไมน์พญายอ 60 มิลลิลิตร", cat: "สารแขวนตะกอน", price: 25, unit: "60 mL x 1 ขวด", icon: "🧴", color: "#F3EEE4", desc: '', use: '', warn: '' },
+  { id: "5049", name: "กลีเซอรีนพญายอ 10 มิลลิลิตร", cat: "สารละลาย", price: 40, unit: "10 mL x 1 ขวด", icon: "🧪", color: "#EEF2E8", desc: '', use: '', warn: '' },
+  { id: "4089", name: "แก้ไอมะขามป้อม 120 มิลลิลิตร", cat: "สารละลาย", price: 25, unit: "120 mL x 1 ขวด", icon: "🧪", color: "#EEF2E8", desc: '', use: '', warn: '' },
+  { id: "5004", name: "น้ำมันไพล 20 มิลลิลิตร", cat: "สารละลาย", price: 25, unit: "20 mL x 1 ขวด", icon: "🧪", color: "#EEF2E8", desc: '', use: '', warn: '' },
+  { id: "5008", name: "พิมเสนน้ำ 5 มิลลิลิตร", cat: "สารละลาย", price: 25, unit: "5 mL x 1 ขวด", icon: "🧪", color: "#EEF2E8", desc: '', use: '', warn: '' },
+  { id: "4088", name: "ยาธาตุอบเชย 120 มิลลิลิตร", cat: "สารละลาย", price: 18.50, unit: "120 mL x 1 ขวด", icon: "🧪", color: "#EEF2E8", desc: '', use: '', warn: '' },
+  { id: "5001", name: "ชุดอบสมุนไพร 150 กรัม", cat: "แห้ง", price: 80, unit: "150 g x 1 ห่อ", icon: "🌿", color: "#EAF3EC", desc: '', use: '', warn: '' },
+  { id: "4026", name: "จันทน์ลีลา 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 500, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4027", name: "ประสะไพล 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 650, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4050", name: "ปราบชมพูทวีป 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 600, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4053", name: "ธาตุบรรจบ 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 700, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' },
+  { id: "4062", name: "ริดสีดวงมหากาฬ 500 มิลลิกรัม 500 แคปซูล", cat: "แคปซูล", price: 500, unit: "500 mg x 500 แคปซูล", icon: "💊", color: "#EEF5E6", desc: '', use: '', warn: '' }
 ];
 
 let NEWS = [

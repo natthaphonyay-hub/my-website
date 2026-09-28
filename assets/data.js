@@ -1,5 +1,9 @@
-// Site content. Everything here is sample data to be replaced with real
-// information. In phase 2 this file will be fed from Google Sheets instead.
+// Google Sheet that holds the site content (the long ID in the sheet's URL:
+// docs.google.com/spreadsheets/d/<SHEET_ID>/edit). The sheet must be shared as
+// "Anyone with the link can view". Leave empty to use the sample data below.
+const SHEET_ID = '';
+
+// Sample data, used when SHEET_ID is empty or the sheet cannot be loaded.
 
 const SITE = {
   phone: '0XX-XXX-XXXX',
@@ -12,7 +16,7 @@ const SITE = {
   mapQuery: 'โรงพยาบาลพนา อำนาจเจริญ'
 };
 
-const PRODUCTS = [
+let PRODUCTS = [
   { id: 'fah', name: 'ฟ้าทะลายโจร', cat: 'ยาแคปซูล', price: 80, unit: 'กระปุก 100 แคปซูล', icon: '🌿', color: '#EEF5E6', featured: true,
     desc: 'บรรเทาอาการเจ็บคอ ไข้หวัด', use: 'รับประทานครั้งละ 2–4 แคปซูล วันละ 4 ครั้ง หลังอาหารและก่อนนอน', warn: 'ไม่ควรใช้ในหญิงตั้งครรภ์ หากอาการไม่ดีขึ้นใน 3 วันควรพบแพทย์' },
   { id: 'khamin', name: 'ขมิ้นชัน', cat: 'ยาแคปซูล', price: 70, unit: 'กระปุก 100 แคปซูล', icon: '🫚', color: '#FBF4D9', featured: true,
@@ -27,7 +31,7 @@ const PRODUCTS = [
     desc: 'บรรเทาอาการท้องผูก', use: 'รับประทานครั้งละ 2–4 แคปซูล ก่อนนอน', warn: 'ไม่ควรใช้ติดต่อกันเป็นเวลานาน' }
 ];
 
-const NEWS = [
+let NEWS = [
   { id: 'n1', date: '28 ก.ย. 2569', tag: 'ประกาศ', title: 'ปรับราคาผลิตภัณฑ์บางรายการ มีผล 1 ต.ค. 2569',
     summary: 'แจ้งปรับราคาผลิตภัณฑ์บางรายการตามต้นทุนวัตถุดิบ',
     body: ['เนื่องจากต้นทุนวัตถุดิบสมุนไพรปรับตัวสูงขึ้น ทางโรงงานจึงขอปรับราคาผลิตภัณฑ์บางรายการ โดยมีผลตั้งแต่วันที่ 1 ตุลาคม 2569 เป็นต้นไป', 'สามารถตรวจสอบราคาล่าสุดได้ที่หน้าผลิตภัณฑ์ หรือสอบถามทาง LINE'] },
@@ -42,7 +46,7 @@ const NEWS = [
     body: ['ศูนย์ฯ เปิดรับซื้อสมุนไพรคุณภาพจากเกษตรกรในพื้นที่ อำเภอพนาและใกล้เคียง เช่น ฟ้าทะลายโจร ขมิ้นชัน ไพล', 'เกษตรกรที่สนใจติดต่อสอบถามรายละเอียดได้ที่ศูนย์แพทย์แผนไทยพนา ในวันและเวลาราชการ'] }
 ];
 
-const ARTICLES = [
+let ARTICLES = [
   { id: 'k1', tag: 'สมุนไพรใกล้ตัว', title: 'ฟ้าทะลายโจร ใช้อย่างไรให้ปลอดภัย', icon: '🌿', read: 3,
     summary: 'รู้จักขนาดที่เหมาะสม ช่วงเวลาที่ควรใช้ และข้อห้ามที่ควรระวัง',
     body: ['ฟ้าทะลายโจรเป็นสมุนไพรที่ใช้บรรเทาอาการเจ็บคอและไข้หวัด ควรเริ่มใช้เมื่อมีอาการในระยะแรก', 'ข้อควรระวัง: ไม่ควรใช้ในหญิงตั้งครรภ์และให้นมบุตร และหากใช้แล้ว 3 วันอาการไม่ดีขึ้นควรพบแพทย์'] },

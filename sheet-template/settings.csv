@@ -1,0 +1,9 @@
+﻿key,value,note
+phone,0XX-XXX-XXXX,เบอร์โทร
+line,@phanaphan,ชื่อ LINE
+lineUrl,#,ลิงก์ LINE เช่น https://lin.ee/xxxx
+email,contact@example.com,อีเมล
+address,ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา อ.พนา จ.อำนาจเจริญ,ที่อยู่
+hours,จันทร์–ศุกร์ 08:30–16:30 น.,เวลาทำการ
+staffUrl,#,ลิงก์ Google Drive ของเจ้าหน้าที่
+mapQuery,โรงพยาบาลพนา อำนาจเจริญ,คำค้นหาแผนที่ Google Maps

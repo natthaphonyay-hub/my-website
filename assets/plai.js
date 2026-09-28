@@ -4,7 +4,7 @@
   const box = document.getElementById('leaves');
   if (!box) return;
 
-  const G = '#1F7A4D', GOLD = '#E3C94A', BRACT = '#A8743A';
+  const G = '#1F7A4D', GOLD = '#E3C94A', BRACT = '#8E4A5E', BRACT_FILL = '#EBCFD3';
   const parts = [];
   let t = 0; // running delay, seconds
   const add = (svg, delay, dur, cls = 'draw') => parts.push(`<g class="${cls}" style="--d:${delay}s;--t:${dur}s">${svg}</g>`);
@@ -12,8 +12,8 @@
 
   // Ground and rhizome
   add(line('M40 540 L380 540', 1.5), 0, .8);
-  add(line('M150 552 C150 540 176 538 186 548 C196 540 214 540 222 550 C232 542 252 544 256 556 C266 560 262 578 246 576 C234 584 214 582 206 574 C194 584 170 582 164 572 C146 574 140 560 150 552 Z', 1.8), .4, 1.2);
-  add(line('M168 560 q6 4 12 0 M204 562 q6 4 12 0 M232 564 q6 4 10 0', 1.2), 1.2, .5);
+  add(line('M150 552 C150 540 176 538 186 548 C196 540 214 540 222 550 C232 542 252 544 258 552 C266 544 284 542 292 550 C302 544 314 552 310 564 C318 574 304 584 290 578 C278 586 258 584 250 576 C234 584 214 582 206 574 C194 584 170 582 164 572 C146 574 140 560 150 552 Z', 1.8), .4, 1.4);
+  add(line('M168 560 q6 4 12 0 M204 562 q6 4 12 0 M232 564 q6 4 10 0 M270 562 q6 4 10 0 M294 564 q5 3 9 0', 1.2), 1.3, .6);
 
   // Pseudostems: [base x, top y, bend]
   const stems = [[180, 70, -14], [214, 150, 10], [246, 250, 16]];
@@ -60,7 +60,7 @@
     (i % 2 ? [-w * .28, w * .28] : [0]).forEach(dx => {
       const cx = 298 + dx, hw = (i % 2 ? w * .42 : w * .5);
       scales.push([i, `<path d="M${cx - hw} ${y} Q${cx - hw} ${y - h * .8} ${cx} ${y - h} Q${cx + hw} ${y - h * .8} ${cx + hw} ${y} Q${cx} ${y + h * .35} ${cx - hw} ${y} Z"
-        pathLength="1" fill="#EFD9AE" stroke="${BRACT}" stroke-width="1.3" stroke-linejoin="round"/>`]);
+        pathLength="1" fill="${BRACT_FILL}" stroke="${BRACT}" stroke-width="1.3" stroke-linejoin="round"/>`]);
     });
   }
   // Paint top rows first so each lower scale overlaps the one above, like a cone

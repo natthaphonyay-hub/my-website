@@ -290,3 +290,4 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
   .hero .leaves { width: 75%; right: -14%; opacity: .3; }
   .page-hero .leaves { width: 130px; right: 0; opacity: .5; }
 }
+.timeline img { margin-top: 12px; border-radius: 12px; width: 100%; max-width: 360px; aspect-ratio: 4/3; object-fit: cover; }

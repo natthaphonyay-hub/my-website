@@ -43,7 +43,7 @@ async function loadSheets() {
   if (!SHEET_ID) return;
   const url = tab => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
   const get = tab => fetch(url(tab)).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
-  const [settings, products, news, articles] = await Promise.all(['settings', 'products', 'news', 'articles'].map(get));
+  const [settings, products, news, articles, history] = await Promise.all(['settings', 'products', 'news', 'articles', 'history'].map(get));
 
   if (settings) settings.forEach(r => { if (r.key && r.value) SITE[r.key] = r.value; });
   if (products?.length) PRODUCTS = products.filter(shown).map((r, i) => ({
@@ -56,6 +56,8 @@ async function loadSheets() {
   if (articles?.length) ARTICLES = articles.filter(shown).map((r, i) => ({
     ...r, id: r.id || 'k' + i, body: paras(r.body), icon: r.icon || '📖', image: r.image ? driveImg(r.image) : ''
   }));
+  if (history?.length) HISTORY = history.filter(shown).filter(r => r.year || r.text)
+    .map(r => ({ ...r, image: r.image ? driveImg(r.image) : '' }));
 }
 
 (async function start() {
@@ -197,6 +199,8 @@ async function loadSheets() {
   fill('#featured', PRODUCTS.filter(p => p.featured).map(productCard).join(''));
   fill('#home-news', NEWS.slice(0, 3).map(n => listItem(n, 'news')).join(''));
   fill('#home-knowledge', ARTICLES.slice(0, 3).map(a => listItem(a, 'knowledge')).join(''));
+  fill('#timeline', HISTORY.map(h => `
+    <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy">` : ''}</li>`).join(''));
   fill('#news-list', NEWS.map(n => postRow(n, 'news')).join(''));
 
   // Products: category chips + search

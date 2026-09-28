@@ -4,7 +4,7 @@
   const box = document.getElementById('leaves');
   if (!box) return;
 
-  const G = '#1F7A4D', GOLD = '#E3C94A', BRACT = '#C9A13B';
+  const G = '#1F7A4D', GOLD = '#E3C94A', BRACT = '#A8743A';
   const parts = [];
   let t = 0; // running delay, seconds
   const add = (svg, delay, dur, cls = 'draw') => parts.push(`<g class="${cls}" style="--d:${delay}s;--t:${dur}s">${svg}</g>`);
@@ -51,13 +51,32 @@
     add(leaf(x, y, -90 + (i - 1) * 12, 60, 8), 5 + i * .2, .9, 'draw leafy');
   });
 
-  // Flower: short stalk from the rhizome with a cone of bracts and small flowers
-  add(line('M292 548 Q296 510 300 470', 2.2), 5.2, .8);
-  const bracts = [[300, 462, 16, 13], [300, 444, 14, 12], [300, 428, 12, 10], [300, 414, 9, 8]];
-  bracts.forEach(([cx, cy, rx, ry], i) =>
-    add(`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" pathLength="1" fill="rgba(201,161,59,.25)" stroke="${BRACT}" stroke-width="1.6"/>`, 5.8 + i * .18, .6));
-  [[282, 450, -30], [318, 438, 30], [286, 426, -40], [314, 418, 35]].forEach(([x, y, a], i) =>
-    add(`<g transform="translate(${x} ${y}) rotate(${a})"><ellipse cx="0" cy="-9" rx="6" ry="10" fill="${GOLD}" opacity=".85"/><ellipse cx="0" cy="-6" rx="2.2" ry="4" fill="#fff" opacity=".8"/></g>`, 6.6 + i * .2, .6, 'bloom'));
+  // Flower: a slender stalk from the rhizome ending in a pointed cone of
+  // overlapping bracts, with small orchid-like flowers peeking out.
+  add(line('M290 548 C292 520 300 494 298 450', 2), 5.2, .9);
+  const rows = 8, baseY = 456, coneH = 100, scales = [];
+  for (let i = 0; i < rows; i++) {
+    const f = i / rows, y = baseY - f * coneH, w = 34 * (1 - f * .8), h = 22 - f * 8;
+    (i % 2 ? [-w * .28, w * .28] : [0]).forEach(dx => {
+      const cx = 298 + dx, hw = (i % 2 ? w * .42 : w * .5);
+      scales.push([i, `<path d="M${cx - hw} ${y} Q${cx - hw} ${y - h * .8} ${cx} ${y - h} Q${cx + hw} ${y - h * .8} ${cx + hw} ${y} Q${cx} ${y + h * .35} ${cx - hw} ${y} Z"
+        pathLength="1" fill="#EFD9AE" stroke="${BRACT}" stroke-width="1.3" stroke-linejoin="round"/>`]);
+    });
+  }
+  // Paint top rows first so each lower scale overlaps the one above, like a cone
+  scales.sort((p, q) => q[0] - p[0]).forEach(([i, svg]) => add(svg, 5.8 + i * .12, .5, 'draw leafy'));
+
+  // Each flower faces outward: two narrow side petals and a wide frilled lip with a yellow throat
+  const flower = (x, y, a, s) => `<g transform="translate(${x} ${y}) rotate(${a}) scale(${s})">
+      <path d="M0 0 C-6 -3 -14 -4 -20 -2 C-14 1 -6 2 0 0 Z" fill="#FFF8E1" stroke="${BRACT}" stroke-width=".8"/>
+      <path d="M0 0 C6 -3 14 -4 20 -2 C14 1 6 2 0 0 Z" fill="#FFF8E1" stroke="${BRACT}" stroke-width=".8"/>
+      <path d="M0 0 C-9 -1 -15 -10 -13 -18 C-11 -25 -5 -27 -2 -24 C-1 -27 1 -27 2 -24 C5 -27 11 -25 13 -18 C15 -10 9 -1 0 0 Z"
+        fill="#FFFDF6" stroke="${BRACT}" stroke-width=".9"/>
+      <path d="M0 -2 C-4 -7 -4 -14 0 -18 C4 -14 4 -7 0 -2 Z" fill="${GOLD}"/>
+      <path d="M0 -4 L0 -15" stroke="#C99A2E" stroke-width=".8"/>
+    </g>`;
+  [[280, 438, -62, 1], [317, 418, 58, .9], [284, 396, -48, .75]].forEach(([x, y, a, sc], i) =>
+    add(flower(x, y, a, sc), 6.9 + i * .35, .7, 'bloom'));
 
   box.classList.add('plai');
   box.innerHTML = `<svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMax meet" aria-hidden="true">

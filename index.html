@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>พนาพรรณ</title>
+<meta name="description" content="โรงงานผลิตยาสมุนไพร ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F2;
+    --surface: #FFFFFF;
+    --text: #2B2B28;
+    --muted: #6B6A63;
+    --green: #1F7A4D;
+    --green-soft: #E6F1EA;
+    --gold: #E3C94A;
+    --line: #E8E4D8;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 18px/1.7 "Sarabun", sans-serif;
+  }
+  h1, h2, h3, .brand, .btn, nav a { font-family: "Prompt", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(250, 248, 242, .85); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; }
+  .brand img { height: 48px; width: auto; }
+  nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; }
+  nav a { font-size: 15px; color: var(--muted); transition: color .2s; }
+  nav a:hover { color: var(--green); }
+  .menu-btn { display: none; background: none; border: 0; font-size: 26px; cursor: pointer; color: var(--text); }
+
+  /* Hero */
+  .hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(120deg, #2FA67A 0%, #BFD78E 50%, #EFD84E 100%);
+  }
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.15), rgba(250,248,242,.95) 95%);
+  }
+  .hero .wrap { position: relative; z-index: 2; padding-top: 96px; padding-bottom: 120px; }
+  .script { width: 220px; filter: invert(1) brightness(2); opacity: .95; margin-bottom: 24px; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.25; margin: 0 0 16px; font-weight: 600; }
+  .hero p { font-size: 20px; color: #3D3D38; max-width: 520px; margin: 0 0 32px; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 14px 28px; border-radius: 999px;
+    font-size: 16px; font-weight: 500; transition: transform .2s, box-shadow .2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(31,122,77,.2); }
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-ghost { background: rgba(255,255,255,.7); color: var(--green); }
+
+  /* Floating leaves */
+  .leaves { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .leaf { position: absolute; opacity: .35; animation: float 14s ease-in-out infinite; }
+  .leaf svg { width: 100%; height: 100%; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(12deg); }
+  }
+
+  /* Trust strip */
+  .trust {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-top: -56px; position: relative; z-index: 3;
+  }
+  .trust div {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px; text-align: center; font-family: "Prompt", sans-serif; font-weight: 500;
+  }
+  .trust span { display: block; font-size: 14px; color: var(--muted); font-family: "Sarabun", sans-serif; font-weight: 400; }
+  .trust b { color: var(--green); font-size: 22px; }
+
+  /* Sections */
+  section { padding: 96px 0 0; }
+  .head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 32px; gap: 16px; }
+  .head h2 { font-size: 30px; margin: 0; font-weight: 600; }
+  .head a { color: var(--green); font-size: 16px; white-space: nowrap; }
+  .eyebrow { color: var(--green); font-size: 14px; letter-spacing: .08em; margin-bottom: 4px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; transition: transform .25s, box-shadow .25s;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,.06); }
+  .thumb { aspect-ratio: 4/3; display: grid; place-items: center; font-size: 56px; }
+  .card .body { padding: 20px 22px 24px; }
+  .tag { font-size: 13px; color: var(--green); background: var(--green-soft); padding: 2px 10px; border-radius: 999px; }
+  .card h3 { font-size: 19px; margin: 10px 0 4px; font-weight: 500; }
+  .card p { margin: 0; color: var(--muted); font-size: 16px; }
+  .price { margin-top: 12px; font-family: "Prompt", sans-serif; color: var(--green); font-size: 20px; font-weight: 600; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li { padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .list li:first-child { border-top: 1px solid var(--line); }
+  .list small { color: var(--muted); font-size: 14px; }
+  .list a { display: block; font-size: 17px; transition: color .2s; }
+  .list a:hover { color: var(--green); }
+
+  /* Footer */
+  footer { margin-top: 112px; background: var(--surface); border-top: 1px solid var(--line); padding: 56px 0 32px; }
+  .foot { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; }
+  .foot .logos { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+  .foot .logos img { height: 56px; width: auto; }
+  .foot h4 { font-family: "Prompt", sans-serif; font-weight: 500; margin: 0 0 10px; font-size: 16px; }
+  .foot p, .foot a { color: var(--muted); font-size: 15px; margin: 0; }
+  .staff { display: inline-block; margin-top: 10px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; }
+  .staff:hover { border-color: var(--green); color: var(--green); }
+  .copy { margin-top: 40px; font-size: 14px; color: var(--muted); text-align: center; }
+
+  .line-fab {
+    position: fixed; right: 20px; bottom: 20px; z-index: 30;
+    background: #06C755; color: #fff; font-family: "Prompt", sans-serif;
+    padding: 12px 20px; border-radius: 999px; box-shadow: 0 8px 20px rgba(0,0,0,.15);
+  }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s, transform .7s; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 860px) {
+    nav ul {
+      display: none; position: absolute; top: 72px; left: 0; right: 0;
+      flex-direction: column; gap: 0; background: var(--bg); border-bottom: 1px solid var(--line);
+    }
+    nav ul.open { display: flex; }
+    nav li a { display: block; padding: 14px 20px; }
+    .menu-btn { display: block; }
+    .grid, .trust, .two, .foot { grid-template-columns: 1fr; }
+    .trust { margin-top: -40px; }
+    .hero .wrap { padding-top: 64px; padding-bottom: 96px; }
+    section { padding-top: 72px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .leaf { animation: none; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a href="#" class="brand">
+      <img src="assets/logo-center.png" alt="ศูนย์แพทย์แผนไทยพนา">
+      <span>พนาพรรณ</span>
+    </a>
+    <nav>
+      <button class="menu-btn" aria-label="เมนู" onclick="document.querySelector('nav ul').classList.toggle('open')">☰</button>
+      <ul>
+        <li><a href="#">หน้าแรก</a></li>
+        <li><a href="#about">เกี่ยวกับเรา</a></li>
+        <li><a href="#products">ผลิตภัณฑ์</a></li>
+        <li><a href="#news">ความรู้</a></li>
+        <li><a href="#news">ข่าวสาร</a></li>
+        <li><a href="#contact">ติดต่อ</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="leaves" id="leaves"></div>
+  <div class="wrap">
+    <img class="script" src="assets/phanaphan-script.png" alt="พนาพรรณ">
+    <h1>ยาสมุนไพรมาตรฐาน GMP<br>จากภูมิปัญญาชุมชนพนา</h1>
+    <p>ผลิตโดยศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา จังหวัดอำนาจเจริญ ดูแลคุณภาพทุกขั้นตอน ตั้งแต่แปลงปลูกถึงมือคุณ</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#products">ดูผลิตภัณฑ์</a>
+      <a class="btn btn-ghost" href="#contact">ติดต่อเรา</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="trust" id="about">
+    <div><b>GMP</b><span>ผลิตตามมาตรฐาน</span></div>
+    <div><b>2536</b><span>ก่อตั้งตั้งแต่ปี</span></div>
+    <div><b>R&amp;D</b><span>ทีมผู้เชี่ยวชาญและวิจัยพัฒนา</span></div>
+  </div>
+
+  <section id="products" class="reveal">
+    <div class="head">
+      <div><div class="eyebrow">PRODUCTS</div><h2>ผลิตภัณฑ์แนะนำ</h2></div>
+      <a href="#">ดูทั้งหมด →</a>
+    </div>
+    <div class="grid">
+      <article class="card">
+        <div class="thumb" style="background:#EEF5E6">🌿</div>
+        <div class="body">
+          <span class="tag">ยาแคปซูล</span>
+          <h3>ฟ้าทะลายโจร</h3>
+          <p>บรรเทาอาการเจ็บคอ ไข้หวัด</p>
+          <div class="price">฿80</div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="thumb" style="background:#FBF4D9">🫚</div>
+        <div class="body">
+          <span class="tag">ยาแคปซูล</span>
+          <h3>ขมิ้นชัน</h3>
+          <p>บรรเทาอาการท้องอืด ท้องเฟ้อ</p>
+          <div class="price">฿70</div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="thumb" style="background:#F3EEE4">🍃</div>
+        <div class="body">
+          <span class="tag">ลูกประคบ</span>
+          <h3>ลูกประคบสมุนไพร</h3>
+          <p>คลายกล้ามเนื้อ ลดอาการปวดเมื่อย</p>
+          <div class="price">฿60</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="news" class="reveal">
+    <div class="two">
+      <div>
+        <div class="head"><div><div class="eyebrow">NEWS</div><h2>ประกาศล่าสุด</h2></div></div>
+        <ul class="list">
+          <li><small>28 ก.ย. 2569</small><a href="#">ปรับราคาผลิตภัณฑ์บางรายการ มีผล 1 ต.ค.</a></li>
+          <li><small>15 ก.ย. 2569</small><a href="#">ผ่านการตรวจประเมินมาตรฐาน GMP ประจำปี</a></li>
+          <li><small>2 ก.ย. 2569</small><a href="#">เปิดรับซื้อสมุนไพรจากเกษตรกรในชุมชน</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="head"><div><div class="eyebrow">KNOWLEDGE</div><h2>คลังความรู้</h2></div></div>
+        <ul class="list">
+          <li><small>สมุนไพรใกล้ตัว</small><a href="#">ฟ้าทะลายโจร ใช้อย่างไรให้ปลอดภัย</a></li>
+          <li><small>ภูมิปัญญา</small><a href="#">ตำรับยาโบราณ กับการตรวจสอบความปลอดภัย</a></li>
+          <li><small>ดูแลสุขภาพ</small><a href="#">ลูกประคบ ใช้แบบไหนได้ผลดีที่สุด</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <div class="logos">
+          <img src="assets/logo-center.png" alt="ศูนย์แพทย์แผนไทยพนา">
+          <img src="assets/logo-hospital.png" alt="โรงพยาบาลพนา">
+        </div>
+        <p>โรงงานผลิตยาสมุนไพร ศูนย์แพทย์แผนไทยพนา<br>โรงพยาบาลพนา อ.พนา จ.อำนาจเจริญ</p>
+      </div>
+      <div>
+        <h4>ติดต่อ</h4>
+        <p>โทร 0XX-XXX-XXXX<br>LINE @phanaphan</p>
+        <a href="https://www.panthaiphana.org" target="_blank" rel="noopener">panthaiphana.org</a>
+      </div>
+      <div>
+        <h4>เจ้าหน้าที่</h4>
+        <a class="staff" href="#" title="ลิงก์ Google Drive ของเจ้าหน้าที่">🔒 สำหรับเจ้าหน้าที่</a>
+      </div>
+    </div>
+    <div class="copy">© 2569 พนาพรรณ · Since 2536 PHANA PROJECT</div>
+  </div>
+</footer>
+
+<a class="line-fab" href="#contact">💬 LINE</a>
+
+<script>
+  // Floating leaves
+  const leafSvg = '<svg viewBox="0 0 64 64" fill="none" stroke="#1F7A4D" stroke-width="2"><path d="M8 56C8 28 28 8 56 8c0 28-20 48-48 48z"/><path d="M8 56L40 24"/></svg>';
+  const box = document.getElementById('leaves');
+  [[8,20,48,0],[78,14,64,-4],[62,58,40,-8],[90,62,36,-2],[30,70,32,-6]].forEach(([x,y,s,d]) => {
+    const el = document.createElement('div');
+    el.className = 'leaf';
+    el.style.cssText = `left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation-delay:${d}s`;
+    el.innerHTML = leafSvg;
+    box.appendChild(el);
+  });
+
+  // Reveal on scroll
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

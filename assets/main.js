@@ -39,12 +39,20 @@ const driveImg = url => {
   return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : url;
 };
 
-async function loadSheets() {
-  if (!SHEET_ID) return;
+// Fetches every tab as raw rows. Returns null when the sheet can't be reached.
+async function fetchSheets() {
+  if (!SHEET_ID) return null;
   const url = tab => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
-  const get = tab => fetch(url(tab)).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
-  const [settings, products, news, articles, history, herbs] = await Promise.all(['settings', 'products', 'news', 'articles', 'history', 'herbs'].map(get));
+  const get = tab => fetch(url(tab), { cache: 'no-store' }).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
+  const tabs = ['settings', 'products', 'news', 'articles', 'history', 'herbs'];
+  const rows = await Promise.all(tabs.map(get));
+  if (rows.every(r => !r)) return null;
+  return Object.fromEntries(tabs.map((t, i) => [t, rows[i]]));
+}
 
+// Copies raw sheet rows into the site data (SITE, PRODUCTS, ...).
+function applySheets(raw) {
+  const { settings, products, news, articles, history, herbs } = raw;
   if (settings) settings.forEach(r => { if (r.key && r.value) SITE[r.key] = r.value; });
   if (products?.length) PRODUCTS = products.filter(shown).map((r, i) => ({
     ...r, id: r.id || 'p' + i, price: r.price, featured: yes(r.featured),
@@ -61,7 +69,12 @@ async function loadSheets() {
   if (herbs?.length) HERBS = herbs.filter(shown).filter(r => r.name);
 }
 
-(async function start() {
+// The last sheet data this browser saw, so repeat visits render instantly.
+const CACHE_KEY = 'phanaphan-sheet-' + SHEET_ID;
+const readCache = () => { try { return localStorage.getItem(CACHE_KEY); } catch { return null; } };
+const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /* storage unavailable */ } };
+
+(function start() {
   /* ---------- Header & footer ---------- */
   const NAV = [
     ['index', 'index.html', 'หน้าแรก'],
@@ -88,10 +101,19 @@ async function loadSheets() {
     </div>
   </header>`;
 
-  await loadSheets();
+  const cached = readCache();
+  if (cached) try { applySheets(JSON.parse(cached)); } catch { /* ignore a corrupt cache */ }
 
+  $('.menu-btn').onclick = () => $('nav ul').classList.toggle('open');
+  const header = $('header');
+  addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 10), { passive: true });
+
+  const bound = new Set(); // listeners are attached once; render() may run twice
+  const once = (key, fn) => { if (!bound.has(key)) { bound.add(key); fn(); } };
+
+  function render() {
   /* ---------- Footer ---------- */
-  $('#site-footer').outerHTML = `
+  $('#site-footer').innerHTML = `
   <footer>
     <div class="wrap">
       <div class="foot">
@@ -116,10 +138,6 @@ async function loadSheets() {
     </div>
   </footer>
   <a class="line-fab" href="${esc(SITE.lineUrl)}" target="_blank" rel="noopener" aria-label="LINE">💬<span> LINE</span></a>`;
-
-  $('.menu-btn').onclick = () => $('nav ul').classList.toggle('open');
-  const header = $('header');
-  addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 10), { passive: true });
 
   /* ---------- Templates ---------- */
   const thumb = (p, span) => p.image
@@ -184,13 +202,15 @@ async function loadSheets() {
     requestAnimationFrame(() => m.classList.add('open'));
     $('.close', m).focus();
   }
-  document.addEventListener('click', e => {
-    const c = e.target.closest('.card[data-id]');
-    if (c) openProduct(c.dataset.id);
-  });
-  document.addEventListener('keydown', e => {
-    const c = e.target.closest?.('.card[data-id]');
-    if (c && e.key === 'Enter') openProduct(c.dataset.id);
+  once('cards', () => {
+    document.addEventListener('click', e => {
+      const c = e.target.closest('.card[data-id]');
+      if (c) openProduct(c.dataset.id);
+    });
+    document.addEventListener('keydown', e => {
+      const c = e.target.closest?.('.card[data-id]');
+      if (c && e.key === 'Enter') openProduct(c.dataset.id);
+    });
   });
 
   /* ---------- Page content ---------- */
@@ -207,22 +227,26 @@ async function loadSheets() {
   const grid = $('#product-grid');
   if (grid) {
     const cats = ['ทั้งหมด', ...new Set(PRODUCTS.map(p => p.cat))];
-    let cat = 'ทั้งหมด', q = '';
-    const draw = () => {
+    const st = render.products ||= { cat: 'ทั้งหมด', q: '' };
+    if (!cats.includes(st.cat)) st.cat = 'ทั้งหมด';
+    const draw = render.drawProducts = () => {
+      const { cat, q } = st;
       const list = PRODUCTS.filter(p => (cat === 'ทั้งหมด' || p.cat === cat) &&
         (p.name + p.desc).toLowerCase().includes(q.toLowerCase()));
       grid.innerHTML = list.map(productCard).join('');
       $('#empty').hidden = list.length > 0;
       bindTilt();
     };
-    $('#chips').innerHTML = cats.map(c => `<button class="chip${c === cat ? ' on' : ''}">${esc(c)}</button>`).join('');
-    $('#chips').addEventListener('click', e => {
-      const b = e.target.closest('.chip'); if (!b) return;
-      cat = b.textContent;
-      $('#chips').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
-      draw();
+    $('#chips').innerHTML = cats.map(c => `<button class="chip${c === st.cat ? ' on' : ''}">${esc(c)}</button>`).join('');
+    once('products', () => {
+      $('#chips').addEventListener('click', e => {
+        const b = e.target.closest('.chip'); if (!b) return;
+        st.cat = b.textContent;
+        $('#chips').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+        render.drawProducts();
+      });
+      $('#search').addEventListener('input', e => { st.q = e.target.value.trim(); render.drawProducts(); });
     });
-    $('#search').addEventListener('input', e => { q = e.target.value.trim(); draw(); });
     draw();
   }
 
@@ -230,14 +254,17 @@ async function loadSheets() {
   const alist = $('#article-list');
   if (alist) {
     const tags = ['ทั้งหมด', ...new Set(ARTICLES.map(a => a.tag))];
-    const draw = t => { alist.innerHTML = ARTICLES.filter(a => t === 'ทั้งหมด' || a.tag === t).map(a => postRow(a, 'knowledge')).join(''); };
-    $('#tag-chips').innerHTML = tags.map((t, i) => `<button class="chip${i ? '' : ' on'}">${esc(t)}</button>`).join('');
-    $('#tag-chips').addEventListener('click', e => {
+    if (!tags.includes(render.tag)) render.tag = 'ทั้งหมด';
+    const draw = () => { alist.innerHTML = ARTICLES.filter(a => render.tag === 'ทั้งหมด' || a.tag === render.tag).map(a => postRow(a, 'knowledge')).join(''); };
+    $('#tag-chips').innerHTML = tags.map(t => `<button class="chip${t === render.tag ? ' on' : ''}">${esc(t)}</button>`).join('');
+    once('tags', () => $('#tag-chips').addEventListener('click', e => {
       const b = e.target.closest('.chip'); if (!b) return;
       $('#tag-chips').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
-      draw(b.textContent);
-    });
-    draw('ทั้งหมด');
+      render.tag = b.textContent;
+      render.drawArticles();
+    }));
+    render.drawArticles = draw;
+    draw();
   }
 
   // Article detail
@@ -272,11 +299,12 @@ async function loadSheets() {
     const money = v => v.toLocaleString('th-TH', { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 1 });
     const bonus = { normal: 0, gap: pct('gapBonus'), organic: pct('organicBonus') };
     const isOpen = h => !/ปิด|งด|หยุด|no|closed/i.test(h.status || '');
-    let type = 'normal', q = '', onlyOpen = false;
+    const st = render.herbs ||= { type: 'normal', q: '', onlyOpen: false };
     $('#h-updated').textContent = SITE.herbsUpdated || '-';
     $('#h-gap').textContent = `+${bonus.gap}%`;
     $('#h-org').textContent = `+${bonus.organic}%`;
-    const draw = () => {
+    const draw = render.drawHerbs = () => {
+      const { type, q, onlyOpen } = st;
       const m = 1 + bonus[type] / 100;
       const list = HERBS.filter(h => (!onlyOpen || isOpen(h)) && (h.name + h.code).includes(q));
       hbody.innerHTML = list.map(h => {
@@ -290,14 +318,16 @@ async function loadSheets() {
       }).join('');
       $('#h-empty').hidden = list.length > 0;
     };
-    $('#h-type').addEventListener('click', e => {
-      const b = e.target.closest('.chip'); if (!b) return;
-      type = b.dataset.type;
-      $('#h-type').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
-      draw();
+    once('herbs', () => {
+      $('#h-type').addEventListener('click', e => {
+        const b = e.target.closest('.chip'); if (!b) return;
+        st.type = b.dataset.type;
+        $('#h-type').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+        render.drawHerbs();
+      });
+      $('#h-search').addEventListener('input', e => { st.q = e.target.value.trim(); render.drawHerbs(); });
+      $('#h-open').addEventListener('change', e => { st.onlyOpen = e.target.checked; render.drawHerbs(); });
     });
-    $('#h-search').addEventListener('input', e => { q = e.target.value.trim(); draw(); });
-    $('#h-open').addEventListener('change', e => { onlyOpen = e.target.checked; draw(); });
     $('#h-tel').href = 'tel:' + SITE.phone.replace(/[^0-9+]/g, '');
     $('#h-line').href = SITE.lineUrl;
     draw();
@@ -313,11 +343,14 @@ async function loadSheets() {
   const lineLink = $('#c-line-link'); if (lineLink) lineLink.href = SITE.lineUrl;
   const mail = $('#c-email-link'); if (mail) mail.href = 'mailto:' + SITE.email;
   const mapLink = $('#c-map-link'); if (mapLink) mapLink.href = SITE.mapUrl || 'https://maps.google.com/?q=' + encodeURIComponent(SITE.mapQuery);
-  const map = $('#map'); if (map) map.src = SITE.mapEmbed || 'https://maps.google.com/maps?q=' + encodeURIComponent(SITE.mapQuery) + '&output=embed';
+  const map = $('#map');
+  const mapSrc = SITE.mapEmbed || 'https://maps.google.com/maps?q=' + encodeURIComponent(SITE.mapQuery) + '&output=embed';
+  if (map && map.getAttribute('src') !== mapSrc) map.src = mapSrc;
 
   /* ---------- Slider (home) ---------- */
   const slider = $('#slider');
   if (slider) {
+    slider.querySelectorAll('.slide').forEach(el => el.remove());
     slider.insertAdjacentHTML('afterbegin', NEWS.filter(n => n.slide).map(n => `
       <a class="slide" href="article.html?type=news&id=${esc(n.id)}" style="${n.image
         ? `background-image:url(${esc(n.image)});background-position:${esc(n.imagePos || 'right bottom')}`
@@ -325,10 +358,11 @@ async function loadSheets() {
         <div class="bg"></div>
         <div class="txt"><small>${esc(n.tag)}</small><h3>${esc(n.title)}</h3><p>${esc(n.summary)}</p></div>
       </a>`).join(''));
+    const sl = render.slider ||= { cur: 0, timer: 0 };
     const slides = [...slider.querySelectorAll('.slide')];
     const dotsBox = $('.dots', slider);
     const bar = $('.progress', slider);
-    let cur = 0, timer;
+    dotsBox.innerHTML = '';
     slides.forEach((_, i) => {
       const b = document.createElement('button');
       b.setAttribute('aria-label', `สไลด์ ${i + 1}`);
@@ -337,26 +371,33 @@ async function loadSheets() {
     });
     const dots = [...dotsBox.children];
     function go(i) {
-      cur = (i + slides.length) % slides.length;
-      slides.forEach((s, j) => s.classList.toggle('active', j === cur));
-      dots.forEach((d, j) => d.classList.toggle('on', j === cur));
+      if (!slides.length) return;
+      sl.cur = (i + slides.length) % slides.length;
+      slides.forEach((s, j) => s.classList.toggle('active', j === sl.cur));
+      dots.forEach((d, j) => d.classList.toggle('on', j === sl.cur));
       bar.classList.remove('run'); void bar.offsetWidth;
       if (!reduce) bar.classList.add('run');
-      clearTimeout(timer);
-      if (!reduce) timer = setTimeout(() => go(cur + 1), 6000);
+      clearTimeout(sl.timer);
+      if (!reduce) sl.timer = setTimeout(() => go(sl.cur + 1), 6000);
     }
-    $('.s-prev', slider).onclick = () => go(cur - 1);
-    $('.s-next', slider).onclick = () => go(cur + 1);
-    let x0 = null;
-    slider.addEventListener('touchstart', e => x0 = e.touches[0].clientX, { passive: true });
-    slider.addEventListener('touchend', e => {
-      if (x0 === null) return;
-      const dx = e.changedTouches[0].clientX - x0;
-      if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1));
-      x0 = null;
+    sl.go = go;
+    once('slider', () => {
+      $('.s-prev', slider).onclick = () => sl.go(sl.cur - 1);
+      $('.s-next', slider).onclick = () => sl.go(sl.cur + 1);
+      let x0 = null;
+      slider.addEventListener('touchstart', e => x0 = e.touches[0].clientX, { passive: true });
+      slider.addEventListener('touchend', e => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 40) sl.go(sl.cur + (dx < 0 ? 1 : -1));
+        x0 = null;
+      });
     });
-    go(0);
+    go(sl.cur);
   }
+
+  bindTilt();
+  } // end render()
 
   /* ---------- Effects ---------- */
   function bindTilt() {
@@ -371,8 +412,19 @@ async function loadSheets() {
       c.addEventListener('mouseleave', () => c.style.transform = '');
     });
   }
-  bindTilt();
+
+  render();
 
   const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Refresh from the sheet in the background; re-render only when it changed.
+  fetchSheets().then(raw => {
+    if (!raw) return;
+    const json = JSON.stringify(raw);
+    if (json === cached) return;
+    writeCache(json);
+    applySheets(raw);
+    render();
+  });
 })();

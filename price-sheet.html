@@ -80,7 +80,7 @@
     <img src="assets/logo-center.png" alt="ศูนย์แพทย์แผนไทยพนา">
     <div class="t">
       <h1>ประกาศราคารับซื้อสมุนไพรจากเกษตรกร</h1>
-      <p>โรงงานผลิตยาสมุนไพร ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา จังหวัดอำนาจเจริญ</p>
+      <p>โรงงานผลิตยาสมุนไพร ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา จังหวัดอำนาจเจริญ <span id="year"></span></p>
     </div>
     <div class="date">อัปเดตราคาล่าสุด<b id="updated">-</b></div>
     <img src="assets/logo-hospital.png" alt="โรงพยาบาลพนา">
@@ -101,8 +101,8 @@
   </footer>
 </div>
 
-<script src="assets/data.js?v=20260930l"></script>
-<script src="assets/main.js?v=20260930l"></script>
+<script src="assets/data.js?v=20260930m"></script>
+<script src="assets/main.js?v=20260930m"></script>
 <script>
   // Builds the A4 price table from the same sheet data the website uses.
   const TYPES = ['normal', 'gap', 'organic'];
@@ -110,6 +110,7 @@
   const isOpen = h => TYPES.some(t => Object.values(h.cells[t] || {}).some(c => c.open));
   function draw(failed) {
     document.getElementById('updated').textContent = SITE.herbsUpdated || '-';
+    document.getElementById('year').textContent = SITE.herbsYear ? '· ' + SITE.herbsYear : '';
     document.getElementById('phone').textContent = SITE.phone;
     document.getElementById('line').textContent = SITE.line;
     const only = document.getElementById('only-open').checked;

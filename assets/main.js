@@ -124,6 +124,8 @@ function applySheets(raw) {
   if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
   const upd = herbCover?.find(r => /^อัปเดต/.test(String(r.key)));
   if (upd?.value) SITE.herbsUpdated = upd.value;
+  const year = herbCover?.find(r => /^ปีงบ/.test(String(r.key)));
+  if (year?.value) SITE.herbsYear = year.value;
 }
 
 // The last sheet data this browser saw, so repeat visits render instantly.

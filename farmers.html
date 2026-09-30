@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20260930c">
+<link rel="stylesheet" href="assets/style.css?v=20260930d">
 </head>
 <body data-page="farmers">
 <div id="site-header"></div>
@@ -36,7 +36,10 @@
       </div>
       <input class="search" id="h-search" type="search" placeholder="🔍 ค้นหาสมุนไพร..." aria-label="ค้นหาสมุนไพร">
     </div>
-    <label class="only-open"><input type="checkbox" id="h-open"> แสดงเฉพาะที่เปิดรับซื้อ</label>
+    <div class="row-between tools-2">
+      <label class="only-open"><input type="checkbox" id="h-open"> แสดงเฉพาะที่เปิดรับซื้อ</label>
+      <a class="btn btn-ghost print-link" href="price-sheet.html" target="_blank" rel="noopener">📄 ตารางราคา A4 (พิมพ์ / PDF)</a>
+    </div>
     <div class="table-wrap">
       <table class="herbs">
         <thead><tr><th>ลำดับ</th><th>รายการ</th><th>หน่วย</th><th class="num">เกรด A</th><th class="num">เกรด B</th><th class="num">เกรด C</th><th>สถานะ</th></tr></thead>
@@ -80,8 +83,8 @@
 </main>
 
 <div id="site-footer"></div>
-<script src="assets/data.js?v=20260930c"></script>
-<script src="assets/plai.js?v=20260930c"></script>
-<script src="assets/main.js?v=20260930c"></script>
+<script src="assets/data.js?v=20260930d"></script>
+<script src="assets/plai.js?v=20260930d"></script>
+<script src="assets/main.js?v=20260930d"></script>
 </body>
 </html>

@@ -96,6 +96,7 @@ const readCache = () => { try { return localStorage.getItem(CACHE_KEY); } catch 
 const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /* storage unavailable */ } };
 
 (function start() {
+  if (!$('#site-header')) return; // standalone pages (e.g. the printable price sheet)
   /* ---------- Header & footer ---------- */
   const NAV = [
     ['index', 'index.html', 'หน้าแรก'],

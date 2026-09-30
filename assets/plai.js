@@ -12,7 +12,7 @@
 
   // Ground in cross-section: a surface line, a soil band below it and a lower
   // boundary line; the rhizome sits underground with shoots rising from it.
-  const SOIL = '#B98A4E', RHIZ = '#A87A2E', RHIZ_FILL = '#F2E0B0';
+  const SOIL = '#B98A4E', RHIZ = '#A87A2E', RHIZ_FILL = '#EBD3A0';
   const under = []; // drawn outside the swaying group so the ground stays still
   const addU = (svg, delay, dur, cls = 'draw') => under.push(`<g class="${cls}" style="--d:${delay}s;--t:${dur}s">${svg}</g>`);
   const shape = (d, fill, stroke, w = 1.5) => `<path d="${d}" pathLength="1" fill="${fill}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
@@ -24,21 +24,27 @@
   // grass tufts on the surface
   addU(line('M84 519 l-4 -10 M88 519 l1 -13 M92 519 l5 -9 M334 520 l-4 -9 M338 520 l1 -12 M342 520 l5 -8', 1.2), .5, .6);
 
-  // Rhizome: a flat, jointed piece lying sideways, short knobs rising into
-  // each shoot, one finger turning up at the right, a cut end showing the
-  // yellow flesh on the left, thin node rings, a pink bud and a few roots.
-  addU(shape('M262 575 C268 583 278 588 285 584 C288 578 280 573 271 572 Z', RHIZ_FILL, RHIZ, 1.3), .7, .6, 'draw leafy');
-  addU(shape('M146 556 L174 554 C174 547 186 545 188 554 L208 555 C209 547 221 546 222 555 L240 556 C241 548 253 547 254 556 L285 557 C286 550 297 550 298 558 L306 559 C316 551 326 543 334 541 C339 541 339 548 335 552 C327 562 318 570 306 574 C280 578 220 578 180 576 C162 576 150 575 146 574 Z', RHIZ_FILL, RHIZ, 1.6), .6, 1.4, 'draw leafy');
-  addU(`<ellipse cx="146" cy="565" rx="5.5" ry="9.5" fill="#F4C542" stroke="${RHIZ}" stroke-width="1.3" pathLength="1"/>
-    <ellipse cx="146" cy="565" rx="2.6" ry="5.2" fill="none" stroke="#E0A92E" stroke-width=".9"/>`, 1.4, .5, 'fade');
-  addU(`<path d="M166 556 q-3 10 0 19 M198 556 q-3 10 0 20 M231 557 q-3 10 0 19 M268 558 q-3 9 0 18 M314 556 q5 5 12 3"
-    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".9" opacity=".6"/>`, 1.6, .6);
-  addU(`<path d="M264 557 C264 551 268 546 271 543 C273 548 272 553 270 557 Z" fill="#EBCFD3" stroke="${BRACT}" stroke-width="1" pathLength="1"/>`, 1.7, .5, 'fade');
-  addU(`<path d="M172 576 q-3 7 -1 13 M204 577 q2 6 -1 12 M238 577 q-3 6 -2 11 M296 572 q3 6 2 11 M156 575 q-4 5 -3 10"
-    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".8" opacity=".5"/>`, 1.9, .6);
+  // Rhizome: a knobbly, hand-like piece made of rounded lobes pointing in
+  // different directions. Lobes are painted back to front so each one hides
+  // part of the outline behind it, which reads as the joints of the rhizome.
+  const lobe = (cx, cy, rx, ry, a) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${a} ${cx} ${cy})"
+    pathLength="1" fill="${RHIZ_FILL}" stroke="${RHIZ}" stroke-width="1.6"/>`;
+  // roots first, so the rhizome sits on top of them
+  addU(`<path d="M168 578 C160 586 150 588 140 596 M176 580 C174 588 168 594 166 600 M200 582 C202 590 198 596 200 602 M236 582 C232 590 234 596 228 602 M262 588 C262 594 258 598 256 602 M152 580 C142 582 132 580 124 586"
+    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".9" stroke-linecap="round" opacity=".6"/>`, 1.8, .7);
+  [[150, 580, 15, 9, 35], [170, 570, 24, 12, 18], [258, 579, 17, 10, 30], [304, 549, 14, 10, -48], [282, 561, 26, 13, -25],
+   [186, 555, 14, 13, -70], [214, 552, 14, 13, -88], [246, 553, 13, 12, -100],
+   [252, 566, 28, 14, 6], [206, 566, 30, 15, -8]].forEach(([cx, cy, rx, ry, a], i) => addU(lobe(cx, cy, rx, ry, a), .6 + i * .08, .7));
+  // joint rings across the fingers and body
+  addU(`<path d="M148 562 q-3 8 1 16 M296 552 q4 7 4 16 M264 572 q-3 6 0 14 M204 553 q-2 14 0 28 M248 553 q-2 14 0 27"
+    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".9" opacity=".55"/>`, 1.5, .6);
+  // papery sheaths where each shoot leaves the rhizome
+  addU([[182, 546], [214, 543], [250, 546], [290, 548]].map(([x, y], i) =>
+    `<path d="M${x - 7} ${y + 4} C${x - 5} ${y - 8} ${x - 2} ${y - 16} ${x + 1} ${y - 22} C${x + 3} ${y - 14} ${x + 6} ${y - 6} ${x + 7} ${y + 4} Z"
+      pathLength="1" fill="#E8E2BE" stroke="${RHIZ}" stroke-width="1.1" stroke-linejoin="round"/>`).join(''), 1.3, .6, 'fade');
 
   // Pseudostems: [base x, top y, bend]
-  const stems = [[180, 70, -14], [214, 150, 10], [246, 250, 16]];
+  const stems = [[180, 70, -14], [214, 150, 10]];
   const stemPoint = (s, f) => {
     const [x, top, bend] = s, y = 548 - (548 - top) * f;
     return [x + bend * Math.sin(f * Math.PI * .8), y];
@@ -58,7 +64,7 @@
       <path d="M${P(0, 0)} Q${P(len * .5, droop * .2)} ${P(len * .96, droop * .95)}" pathLength="1" fill="none" stroke="${G}" stroke-width="1"/>`;
   };
   stems.forEach((s, si) => {
-    const n = [7, 5, 4][si];
+    const n = [7, 5][si];
     for (let k = 0; k < n; k++) {
       const f = .28 + k * (.7 / n);
       const [x, y] = stemPoint(s, f);
@@ -72,6 +78,14 @@
     const [x, y] = stemPoint(s, 1);
     add(leaf(x, y, -90 + (i - 1) * 12, 60, 8), 5 + i * .2, .9, 'draw leafy');
   });
+
+  // Young shoot beside the flower: a short rolled spear just out of the soil,
+  // one leaf starting to unfurl
+  add(line('M250 548 C250 530 251 512 252 496', 2.2), 2, .8);
+  add(`<path d="M246 504 C247 488 250 472 253 458 C256 472 258 488 258 504 C256 500 248 500 246 504 Z"
+    pathLength="1" fill="rgba(31,122,77,.12)" stroke="${G}" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M252 500 L253 466" pathLength="1" fill="none" stroke="${G}" stroke-width=".9"/>`, 2.6, .8, 'draw leafy');
+  add(leaf(252, 502, -40, 34, 7), 3.2, .8, 'draw leafy');
 
   // Flower: a slender stalk from the rhizome ending in a pointed cone of
   // overlapping bracts, with small orchid-like flowers peeking out.

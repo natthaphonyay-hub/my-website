@@ -310,7 +310,7 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
 .status.on { background: var(--green-soft); color: var(--green); }
 .status.off { background: #F6E6E6; color: #A34A4A; }
 .note { color: var(--muted); font-size: 15px; margin: 14px 0 0; }
-.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; counter-reset: s; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; counter-reset: s; }
 .steps li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; position: relative; counter-increment: s; }
 .steps li::after { content: counter(s); position: absolute; top: 18px; right: 20px; font: 600 28px "Prompt", sans-serif; color: var(--green-soft); }
 .steps .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--green-soft); display: grid; place-items: center; font-size: 26px; margin-bottom: 14px; }

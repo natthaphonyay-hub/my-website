@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20260930i">
+<link rel="stylesheet" href="assets/style.css?v=20260930j">
 </head>
 <body data-page="products">
 <div id="site-header"></div>
@@ -36,24 +36,28 @@
     </div>
     <div class="row-between tools-2 d-tools">
       <input class="search" id="d-search" type="search" placeholder="🔍 ค้นหาชื่อยา ชื่อการค้า หรือรหัส..." aria-label="ค้นหาผลิตภัณฑ์">
+      <details class="cols-pick" id="d-cols">
+        <summary class="btn btn-ghost print-link">⚙️ เลือกคอลัมน์</summary>
+        <div class="cols-pop"><div class="cols-list"></div><button type="button" class="cols-reset">คืนค่าเริ่มต้น</button></div>
+      </details>
       <a class="btn btn-ghost print-link" id="d-print" href="drug-sheet.html" target="_blank" rel="noopener">📄 ตาราง A4 (พิมพ์ / PDF)</a>
     </div>
     <div class="d-count" id="d-count"></div>
     <div class="table-wrap drug-wrap">
-      <table class="drugs">
+      <table class="drugs" id="d-table">
         <thead id="d-head"></thead>
         <tbody id="d-body"></tbody>
       </table>
     </div>
     <p class="empty" id="d-empty" hidden>กำลังโหลดรายการ…</p>
-    <p class="note">ราคาเป็นบาท · <span class="dstat ok">ผลิตปกติ</span> พร้อมจำหน่าย · <span class="dstat pre">Pre-Order</span> สั่งล่วงหน้าตามระยะเวลาที่ระบุ · เลื่อนตารางไปทางขวาเพื่อดูรหัสทั้งหมด</p>
+    <p class="note">ราคาเป็นบาท · <span class="dstat ok">ผลิตปกติ</span> พร้อมจำหน่าย · <span class="dstat pre">Pre-Order</span> สั่งล่วงหน้าตามระยะเวลาที่ระบุ · กด "เลือกคอลัมน์" เพื่อดูรหัสอื่น ๆ หรือกดที่รายการเพื่อดูข้อมูลทั้งหมด</p>
   </section>
 </div>
 </main>
 
 <div id="site-footer"></div>
-<script src="assets/data.js?v=20260930i"></script>
-<script src="assets/plai.js?v=20260930i"></script>
-<script src="assets/main.js?v=20260930i"></script>
+<script src="assets/data.js?v=20260930j"></script>
+<script src="assets/plai.js?v=20260930j"></script>
+<script src="assets/main.js?v=20260930j"></script>
 </body>
 </html>

@@ -339,3 +339,4 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
   .herbs td.num { text-align: left; margin-top: 6px; }
   .herbs td.num::before { content: attr(data-l); display: block; font-size: 13px; color: var(--muted); font-weight: 400; }
 }
+.map-btn { margin-top: 24px; }

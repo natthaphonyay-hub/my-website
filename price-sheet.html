@@ -40,8 +40,6 @@
   td.p { text-align: right; width: 54px; }
   td.p.a { font-weight: 600; }
   td.x { text-align: center; color: #B0AEA4; font-size: 11px; }
-  tr.grp td { font: 600 13px "Prompt", sans-serif; background: #E6F1EA !important; color: var(--green); padding: 5px 8px; }
-  tr.grp.off td { background: #F6E6E6 !important; color: #A34A4A; }
   tr.closed td { color: #A9A79E !important; }
   thead { display: table-header-group; }
   tr { break-inside: avoid; }
@@ -103,8 +101,8 @@
   </footer>
 </div>
 
-<script src="assets/data.js?v=20260930e"></script>
-<script src="assets/main.js?v=20260930e"></script>
+<script src="assets/data.js?v=20260930d"></script>
+<script src="assets/main.js?v=20260930d"></script>
 <script>
   // Builds the A4 price table from the same sheet data the website uses.
   const TYPES = ['normal', 'gap', 'organic'];
@@ -121,16 +119,14 @@
       body.innerHTML = `<tr><td colspan="12" class="msg">${failed ? 'โหลดราคาไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' : 'กำลังโหลดราคา…'}</td></tr>`;
       return;
     }
-    const groups = [['เปิดรับซื้อ', list.filter(isOpen), 'on'], ['งดรับชั่วคราว', list.filter(h => !isOpen(h)), 'off']];
-    body.innerHTML = groups.filter(([, g]) => g.length).map(([label, g, cls]) =>
-      `<tr class="grp ${cls}"><td colspan="12">${label} (${g.length} รายการ)</td></tr>` + g.map((h, i) => {
+    body.innerHTML = list.map((h, i) => {
       const cells = TYPES.map(t => ['A', 'B', 'C'].map(g => {
         const c = h.cells[t]?.[g];
         if (!c) return '<td class="x">–</td>';
         return c.open ? `<td class="p${g === 'A' ? ' a' : ''}">${money(c.price)}</td>` : '<td class="x">งดรับ</td>';
       }).join('')).join('');
       return `<tr class="${isOpen(h) ? '' : 'closed'}"><td class="n">${i + 1}</td><td class="name">${esc(h.name)}</td><td class="u">${esc(h.unit || 'กก.')}</td>${cells}</tr>`;
-    }).join('')).join('');
+    }).join('');
   }
   document.getElementById('only-open').addEventListener('change', () => draw());
   // Paper orientation: portrait by default, remembered per browser

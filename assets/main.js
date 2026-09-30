@@ -8,8 +8,9 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const page = document.body.dataset.page;
 
 /* ---------- Google Sheets ---------- */
-// Parses CSV text (handles quoted fields, commas and line breaks inside quotes).
-function parseCSV(text) {
+// Splits CSV text into rows of cells (handles quoted fields, commas and line
+// breaks inside quotes).
+function csvRows(text) {
   const rows = []; let row = [], cell = '', q = false;
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
@@ -25,7 +26,11 @@ function parseCSV(text) {
     } else cell += c;
   }
   if (cell || row.length) { row.push(cell); rows.push(row); }
-  const [head = [], ...data] = rows;
+  return rows;
+}
+// CSV text -> [{ header: value }] objects.
+function parseCSV(text) {
+  const [head = [], ...data] = csvRows(text);
   const keys = head.map(h => h.trim());
   return data.filter(r => r.some(v => v.trim())).map(r => Object.fromEntries(keys.map((k, i) => [k, (r[i] ?? '').trim()])));
 }
@@ -42,13 +47,15 @@ const driveImg = url => {
 // Fetches every tab as raw rows. Returns null when the sheet can't be reached.
 async function fetchSheets() {
   const url = (id, tab) => `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}`;
-  const get = (id, tab) => !id ? Promise.resolve(null)
-    : fetch(url(id, tab), { cache: 'no-store' }).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
+  const get = (id, tab, raw) => !id ? Promise.resolve(null)
+    : fetch(url(id, tab), { cache: 'no-store' }).then(r => r.ok ? r.text() : Promise.reject())
+      .then(raw ? csvRows : parseCSV).catch(() => null);
   const jobs = [
-    ...['settings', 'products', 'news', 'articles', 'history'].map(t => [t, SHEET_ID, t]),
-    ['herbPrices', HERB_SHEET_ID, 'ราคา'], ['herbCover', HERB_SHEET_ID, 'ปก']
+    ...['settings', 'news', 'articles', 'history'].map(t => [t, SHEET_ID, t]),
+    ['herbPrices', HERB_SHEET_ID, 'ราคา'], ['herbCover', HERB_SHEET_ID, 'ปก'],
+    ['drugs', DRUG_SHEET_ID, 'ยา', true], ['drugCover', DRUG_SHEET_ID, 'ปก', true]
   ];
-  const rows = await Promise.all(jobs.map(([, id, tab]) => get(id, tab)));
+  const rows = await Promise.all(jobs.map(([, id, tab, raw]) => get(id, tab, raw)));
   if (rows.every(r => !r)) return null;
   return Object.fromEntries(jobs.map(([key], i) => [key, rows[i]]));
 }
@@ -69,14 +76,43 @@ function buildHerbPrices(rows) {
   return [...byName.values()];
 }
 
-// Copies raw sheet rows into the site data (SITE, PRODUCTS, ...).
+// Drug list rows (header row first) -> one object per visible item. Columns are
+// found by header name, so they may be reordered; both "ประเภท" columns are kept.
+const DRUG_COLS = {
+  show: 'show', status: 'status', unit: 'unit', featured: 'featured', no: 'ลำดับ', code: 'เลข',
+  ptype: 'ประเภทผลิตภัณฑ์', form: 'รูปแบบเภสัชภัณฑ์', name: 'รายการยาและเวชภัณฑ์มิใช่ยา', price: 'ราคา',
+  size: 'ขนาดบรรจุ', trade: 'ชื่อการค้า', strength: 'รหัสขนาดความแรงยา', code24: 'เลข 24 หลักใหม่',
+  ttmt: 'TTMTID ใหม่', image: 'image', container: 'ภาชนะบรรจุ', drugType: 'ประเภท ยา',
+  list: 'บัญชียาจากสมุนไพร', use: 'สรรพคุณยา/ข้อบ่งใช้', dose: 'ขนาดและวิธีใช้', contra: 'ข้อห้ามใช้',
+  warn: 'คำเตือน', caution: 'ข้อควรระวัง', adverse: 'อาการไม่พึงประสงค์', label: 'ฉลากยาพิเศษ', store: 'การเก็บ'
+};
+function buildDrugs(rows) {
+  const norm = h => String(h).replace(/\s+/g, ' ').trim().toLowerCase();
+  const [head = [], ...data] = rows;
+  const heads = head.map(norm);
+  const at = Object.fromEntries(Object.entries(DRUG_COLS).map(([k, h]) => [k, heads.indexOf(norm(h))]));
+  const typeCols = heads.map((h, i) => h === 'ประเภท' ? i : -1).filter(i => i >= 0);
+  const blank = v => !v || /^[-–—]+$/.test(v);
+  return data.map(r => r.map(v => String(v ?? '').trim())).filter(r => r.some(Boolean)).map((r, i) => {
+    const d = Object.fromEntries(Object.keys(DRUG_COLS).map(k => [k, at[k] >= 0 ? (r[at[k]] || '') : '']));
+    for (const k of Object.keys(d)) if (k !== 'price' && blank(d[k])) d[k] = '';
+    return {
+      ...d, id: String(i + 1), featured: yes(d.featured), image: d.image ? driveImg(d.image) : '',
+      types: typeCols.map(c => r[c]).filter(v => !blank(v)),
+      units: d.unit.split(/[,\n\/]+/).map(x => x.trim()).filter(Boolean)
+    };
+  }).filter(d => d.name && (d.show === '' || yes(d.show)));
+}
+
+// Copies raw sheet rows into the site data (SITE, DRUGS, ...).
 function applySheets(raw) {
-  const { settings, products, news, articles, history, herbPrices, herbCover } = raw;
+  const { settings, news, articles, history, herbPrices, herbCover, drugs, drugCover } = raw;
   if (settings) settings.forEach(r => { if (r.key && r.value) SITE[r.key] = r.value; });
-  if (products?.length) PRODUCTS = products.filter(shown).map((r, i) => ({
-    ...r, id: r.id || 'p' + i, price: r.price, featured: yes(r.featured),
-    icon: r.icon || '🌿', color: r.color || '#EEF5E6', image: r.image ? driveImg(r.image) : ''
-  }));
+  if (drugs?.length > 1) DRUGS = buildDrugs(drugs);
+  // "ปก" tab: rows of [key, value, ...]
+  const cover = (rows, re) => rows?.find(r => re.test(String(r[0]).trim()))?.[1]?.trim();
+  SITE.drugsUpdated = cover(drugCover, /^อัปเดต/) || SITE.drugsUpdated;
+  SITE.drugsYear = cover(drugCover, /^ปีงบ/) || SITE.drugsYear;
   if (news?.length) NEWS = news.filter(shown).map((r, i) => ({
     ...r, id: r.id || 'n' + i, slide: yes(r.slide), body: paras(r.body), image: r.image ? driveImg(r.image) : ''
   }));
@@ -162,20 +198,27 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   <a class="line-fab" href="${esc(SITE.lineUrl)}" target="_blank" rel="noopener" aria-label="LINE">💬<span> LINE</span></a>`;
 
   /* ---------- Templates ---------- */
-  const thumb = (p, span) => p.image
-    ? `<div class="thumb" style="background:${esc(p.color)} url(${esc(p.image)}) center/cover"></div>`
-    : `<div class="thumb" style="background:${esc(p.color)}">${span ? `<span>${esc(p.icon)}</span>` : esc(p.icon)}</div>`;
+  // Drug helpers
+  const drugIcon = d => /ครีม|เจล|ขี้ผึ้ง|หม่อง|บาล์ม|ลูกประคบ/.test(d.form + d.name) ? '🧴'
+    : /แคปซูล|เม็ด|ลูกกลอน/.test(d.form + d.name) ? '💊' : /ผง|ชา/.test(d.form + d.name) ? '🍵'
+    : /น้ำ|สเปรย์|ไซรัป/.test(d.form + d.name) ? '🧪' : '🌿';
+  const drugThumb = (d, cls = 'thumb') => d.image
+    ? `<div class="${cls}" style="background:#F3F1EA url(${esc(d.image)}) center/contain no-repeat"></div>`
+    : `<div class="${cls}" style="background:linear-gradient(135deg,#E6F1EA,#F6F0D4)"><span>${drugIcon(d)}</span></div>`;
+  const baht = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? esc(v) : '฿' + n.toLocaleString('th-TH', { maximumFractionDigits: 2 }); };
+  const statusCls = s => /ปกติ/.test(s) ? 'ok' : /ปี/.test(s) ? 'long' : 'pre';
+  const statusBadge = s => s ? `<span class="dstat ${statusCls(s)}">${esc(s)}</span>` : '';
 
-  const productCard = p => `
-    <article class="card" data-id="${esc(p.id)}" tabindex="0">
-      ${thumb(p, true)}
+  const drugCard = d => `
+    <a class="card" href="products.html?id=${esc(d.id)}">
+      ${drugThumb(d)}
       <div class="body">
-        <span class="tag">${esc(p.cat)}</span>
-        <h3>${esc(p.name)}</h3>
-        <p>${esc(p.desc)}</p>
-        <div class="row-between"><div class="price">฿${esc(p.price)}</div><div class="more">ดูรายละเอียด →</div></div>
+        <span class="tag">${esc(d.form || d.ptype)}</span>
+        <h3>${esc(d.name)}</h3>
+        <p>${esc(paras(d.use)[0] || d.trade)}</p>
+        <div class="row-between"><div class="price">${baht(d.price)}</div><div class="more">ดูรายละเอียด →</div></div>
       </div>
-    </article>`;
+    </a>`;
 
   const pic = (item, fallback) => item.image
     ? `style="background-image:url(${esc(item.image)});background-position:${esc(item.imagePos || 'center')}"`
@@ -194,10 +237,14 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   const listItem = (item, type) => `
     <li><small>${esc(item.date || item.tag)}</small><a href="article.html?type=${type}&id=${esc(item.id)}">${esc(item.title)}</a></li>`;
 
-  /* ---------- Product modal ---------- */
-  function openProduct(id) {
-    const p = PRODUCTS.find(x => x.id === id);
-    if (!p) return;
+  /* ---------- Drug modal ---------- */
+  const textBlock = v => {
+    const lines = paras(v).map(x => x.replace(/^[-•*·]\s*/, ''));
+    return lines.length > 1 ? `<ul>${lines.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : `<p>${esc(lines[0])}</p>`;
+  };
+  function openDrug(id) {
+    const d = DRUGS.find(x => x.id === id);
+    if (!d) return;
     let m = $('#modal');
     if (!m) {
       m = document.createElement('div');
@@ -207,69 +254,137 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       m.addEventListener('click', e => { if (e.target === m || e.target.closest('.close')) m.classList.remove('open'); });
       addEventListener('keydown', e => { if (e.key === 'Escape') m.classList.remove('open'); });
     }
+    const facts = [['เลข', d.code], ['ประเภทผลิตภัณฑ์', d.ptype], ['รูปแบบเภสัชภัณฑ์', d.form], ['ขนาดบรรจุ', d.size],
+      ['ภาชนะบรรจุ', d.container], ['ประเภท', d.types.join(' · ')], ['ประเภท ยา', d.drugType],
+      ['บัญชียาจากสมุนไพร', d.list], ['ชื่อการค้า', d.trade], ['รหัสขนาดความแรงยา', d.strength],
+      ['เลข 24 หลักใหม่', d.code24], ['TTMTID ใหม่', d.ttmt]].filter(([, v]) => v);
+    const texts = [['สรรพคุณยา / ข้อบ่งใช้', d.use], ['ขนาดและวิธีใช้', d.dose], ['ข้อห้ามใช้', d.contra], ['คำเตือน', d.warn],
+      ['ข้อควรระวัง', d.caution], ['อาการไม่พึงประสงค์', d.adverse], ['ฉลากยาพิเศษ', d.label], ['การเก็บ', d.store]].filter(([, v]) => v);
     m.innerHTML = `
-      <div class="box">
+      <div class="box wide">
         <button class="close" aria-label="ปิด">✕</button>
-        ${thumb(p)}
+        ${drugThumb(d)}
         <div class="body">
-          <span class="tag">${esc(p.cat)}</span>
-          <h3>${esc(p.name)}</h3>
-          <div class="price">฿${esc(p.price)} <small style="color:var(--muted);font-weight:400;font-size:15px">/ ${esc(p.unit)}</small></div>
-          <dl>${[['สรรพคุณ', p.desc], ['วิธีใช้', p.use], ['ข้อควรระวัง', p.warn]]
-          .filter(([, v]) => v).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')
-          || '<dd style="color:var(--muted)">สอบถามสรรพคุณและวิธีใช้ได้ที่ศูนย์ฯ</dd>'}</dl>
+          <div class="badges-row">${statusBadge(d.status)}${d.units.map(u => `<span class="tag">${esc(u)}</span>`).join('')}</div>
+          <h3>${esc(d.name)}</h3>
+          <div class="price">${baht(d.price)} <small>${d.size ? '/ ' + esc(d.size) : ''}</small></div>
+          <dl class="facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+          <dl>${texts.map(([k, v]) => `<dt>${k}</dt><dd>${textBlock(v)}</dd>`).join('')}</dl>
           <a class="btn btn-primary" style="margin-top:24px" href="${esc(SITE.lineUrl)}" target="_blank" rel="noopener">สอบถาม / สั่งซื้อทาง LINE</a>
         </div>
       </div>`;
     requestAnimationFrame(() => m.classList.add('open'));
     $('.close', m).focus();
   }
-  once('cards', () => {
+  once('drugs-open', () => {
     document.addEventListener('click', e => {
-      const c = e.target.closest('.card[data-id]');
-      if (c) openProduct(c.dataset.id);
+      const c = e.target.closest('[data-drug]');
+      if (c) openDrug(c.dataset.drug);
     });
     document.addEventListener('keydown', e => {
-      const c = e.target.closest?.('.card[data-id]');
-      if (c && e.key === 'Enter') openProduct(c.dataset.id);
+      const c = e.target.closest?.('[data-drug]');
+      if (c && e.key === 'Enter' && c.tagName !== 'BUTTON') openDrug(c.dataset.drug);
     });
   });
 
   /* ---------- Page content ---------- */
   const fill = (sel, html) => { const el = $(sel); if (el) el.innerHTML = html; };
 
-  fill('#featured', PRODUCTS.filter(p => p.featured).map(productCard).join(''));
+  fill('#featured', DRUGS.filter(d => d.featured).map(drugCard).join(''));
   fill('#home-news', NEWS.slice(0, 3).map(n => listItem(n, 'news')).join(''));
   fill('#home-knowledge', ARTICLES.slice(0, 3).map(a => listItem(a, 'knowledge')).join(''));
   fill('#timeline', HISTORY.map(h => `
     <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy">` : ''}</li>`).join(''));
   fill('#news-list', NEWS.map(n => postRow(n, 'news')).join(''));
 
-  // Products: category chips + search
-  const grid = $('#product-grid');
-  if (grid) {
-    const cats = ['ทั้งหมด', ...new Set(PRODUCTS.map(p => p.cat))];
-    const st = render.products ||= { cat: 'ทั้งหมด', q: '' };
-    if (!cats.includes(st.cat)) st.cat = 'ทั้งหมด';
-    const draw = render.drawProducts = () => {
-      const { cat, q } = st;
-      const list = PRODUCTS.filter(p => (cat === 'ทั้งหมด' || p.cat === cat) &&
-        (p.name + p.desc).toLowerCase().includes(q.toLowerCase()));
-      grid.innerHTML = list.map(productCard).join('');
-      $('#empty').hidden = list.length > 0;
-      bindTilt();
+  // Products: featured slider + drug table with unit / status filters
+  const dbody = $('#d-body');
+  if (dbody) {
+    const UNIT_ORDER = ['โรงพยาบาล', 'ศูนย์แพทย์แผนไทยพนา', 'ร้านค้ามูลนิธิ'];
+    const byOrder = order => (a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99);
+    const units = [...new Set(DRUGS.flatMap(d => d.units))].sort(byOrder(UNIT_ORDER));
+    const statuses = [...new Set(DRUGS.map(d => d.status).filter(Boolean))].sort(byOrder(['ผลิตปกติ']));
+    const st = render.drugs ||= { unit: 'โรงพยาบาล', status: 'ทั้งหมด', q: '' };
+    const narrow = matchMedia('(max-width: 860px)');
+    if (DRUGS.length && st.unit !== 'ทั้งหมด' && !units.includes(st.unit)) st.unit = 'ทั้งหมด';
+    if (st.status !== 'ทั้งหมด' && DRUGS.length && !statuses.includes(st.status)) st.status = 'ทั้งหมด';
+    const chips = (list, cur) => ['ทั้งหมด', ...list].map(v => `<button class="chip${v === cur ? ' on' : ''}" data-v="${esc(v)}">${esc(v)}</button>`).join('');
+    $('#d-unit').innerHTML = chips(units.length ? units : UNIT_ORDER, st.unit);
+    $('#d-status').innerHTML = chips(statuses, st.status);
+    $('#d-updated').textContent = [SITE.drugsYear, SITE.drugsUpdated && 'อัปเดตล่าสุด ' + SITE.drugsUpdated].filter(Boolean).join(' · ') || '-';
+    const draw = render.drawDrugs = () => {
+      const q = st.q.toLowerCase();
+      const list = DRUGS.filter(d => (st.unit === 'ทั้งหมด' || d.units.includes(st.unit)) &&
+        (st.status === 'ทั้งหมด' || d.status === st.status) &&
+        [d.name, d.trade, d.code, d.ptype, d.form, d.code24, d.ttmt].join(' ').toLowerCase().includes(q));
+      const code = v => v ? `<span class="code">${esc(v)}</span>` : '–';
+      const txt = v => esc(v) || '–';
+      const cols = [
+        ['ลำดับ', 'n', (d, i) => i + 1], ['เลข', '', d => txt(d.code)], ['ประเภทผลิตภัณฑ์', '', d => txt(d.ptype)],
+        ['รูปแบบเภสัชภัณฑ์', '', d => txt(d.form)],
+        ['รายการยาและเวชภัณฑ์มิใช่ยา', 'name', d => `<b>${esc(d.name)}</b>${statusBadge(d.status)}`],
+        ['ราคา', 'num', d => d.price ? baht(d.price) : '–'], ['ขนาดบรรจุ', '', d => txt(d.size)],
+        ['ประเภท', '', d => d.types.map(t => `<span class="tag">${esc(t)}</span>`).join(' ') || '–'], ['ชื่อการค้า', '', d => txt(d.trade)],
+        ['รหัสขนาดความแรงยา', '', d => code(d.strength)], ['เลข 24 หลักใหม่', '', d => code(d.code24)], ['TTMTID ใหม่', '', d => code(d.ttmt)]
+      ];
+      // On phones the drug name comes first so it stays pinned on the left while scrolling
+      if (narrow.matches) cols.unshift(...cols.splice(4, 1));
+      $('#d-head').innerHTML = `<tr>${cols.map(([h, c]) => `<th class="${c}">${h}</th>`).join('')}</tr>`;
+      dbody.innerHTML = list.map((d, i) => `
+        <tr data-drug="${esc(d.id)}" tabindex="0">${cols.map(([, c, f]) => `<td class="${c}">${f(d, i)}</td>`).join('')}</tr>`).join('');
+      $('#d-count').textContent = DRUGS.length ? `แสดง ${list.length} จาก ${DRUGS.length} รายการ` : '';
+      const empty = $('#d-empty');
+      empty.hidden = list.length > 0;
+      empty.textContent = DRUGS.length ? 'ไม่พบรายการที่ค้นหา'
+        : render.drugFailed ? 'ขออภัย โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง หรือโทรสอบถาม'
+        : 'กำลังโหลดรายการ…';
+      const qs = new URLSearchParams({ unit: st.unit, status: st.status });
+      $('#d-print').href = 'drug-sheet.html?' + qs;
     };
-    $('#chips').innerHTML = cats.map(c => `<button class="chip${c === st.cat ? ' on' : ''}">${esc(c)}</button>`).join('');
-    once('products', () => {
-      $('#chips').addEventListener('click', e => {
+    once('drugs', () => {
+      const pick = (box, key) => $(box).addEventListener('click', e => {
         const b = e.target.closest('.chip'); if (!b) return;
-        st.cat = b.textContent;
-        $('#chips').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
-        render.drawProducts();
+        st[key] = b.dataset.v;
+        $(box).querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+        render.drawDrugs();
       });
-      $('#search').addEventListener('input', e => { st.q = e.target.value.trim(); render.drawProducts(); });
+      pick('#d-unit', 'unit'); pick('#d-status', 'status');
+      $('#d-search').addEventListener('input', e => { st.q = e.target.value.trim(); render.drawDrugs(); });
+      narrow.addEventListener('change', () => render.drawDrugs());
     });
     draw();
+
+    // Featured banner (one or more items marked "featured" in the sheet)
+    const feat = $('#d-feature');
+    const items = DRUGS.filter(d => d.featured);
+    feat.hidden = !items.length;
+    const fs = render.feature ||= { cur: 0, timer: 0 };
+    feat.innerHTML = items.map((d, i) => `
+      <div class="fslide${i === 0 ? ' active' : ''}">
+        ${drugThumb(d, 'fpic')}
+        <div class="ftxt">
+          <small>★ ผลิตภัณฑ์แนะนำ</small>
+          <h2>${esc(d.name)}</h2>
+          ${d.trade ? `<div class="trade">${esc(d.trade)}</div>` : ''}
+          <p>${esc(paras(d.use).slice(0, 2).join(' · ').replace(/^[-•]\s*/, ''))}</p>
+          <div class="fbuy"><span class="price">${baht(d.price)}</span><span>${esc(d.size)}</span>
+            <button class="btn btn-primary" data-drug="${esc(d.id)}">ดูรายละเอียด</button></div>
+        </div>
+      </div>`).join('') + (items.length > 1 ? `<div class="dots">${items.map((_, i) => `<button aria-label="รายการ ${i + 1}"></button>`).join('')}</div>` : '');
+    const slides = [...feat.querySelectorAll('.fslide')], dots = [...feat.querySelectorAll('.dots button')];
+    const go = i => {
+      if (!slides.length) return;
+      fs.cur = (i + slides.length) % slides.length;
+      slides.forEach((s, j) => s.classList.toggle('active', j === fs.cur));
+      dots.forEach((b, j) => { b.classList.toggle('on', j === fs.cur); b.onclick = () => go(j); });
+      clearTimeout(fs.timer);
+      if (slides.length > 1 && !reduce) fs.timer = setTimeout(() => go(fs.cur + 1), 7000);
+    };
+    go(fs.cur);
+
+    // products.html?id=… (from the home page cards) opens that item once
+    const want = new URLSearchParams(location.search).get('id');
+    if (want && !render.deepOpened && DRUGS.some(d => d.id === want)) { render.deepOpened = true; openDrug(want); }
   }
 
   // Knowledge: tag chips
@@ -447,6 +562,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   let last = cached;
   const refresh = () => fetchSheets().then(raw => {
     if (!raw?.herbPrices?.length && !HERB_PRICES.length) { render.herbFailed = true; render.drawHerbs?.(); }
+    if (!raw?.drugs?.length && !DRUGS.length) { render.drugFailed = true; render.drawDrugs?.(); }
     if (!raw) return;
     const json = JSON.stringify(raw);
     if (json === last) return;

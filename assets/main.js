@@ -207,7 +207,23 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     : `<div class="${cls}" style="background:linear-gradient(135deg,#E6F1EA,#F6F0D4)"><span>${drugIcon(d)}</span></div>`;
   const baht = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? esc(v) : '฿' + n.toLocaleString('th-TH', { maximumFractionDigits: 2 }); };
   const statusCls = s => /ปกติ/.test(s) ? 'ok' : /ปี/.test(s) ? 'long' : 'pre';
+  const typeTag = t => `<span class="tag${/^NED$/i.test(t) ? ' ned' : ''}">${esc(t)}</span>`;
   const statusBadge = s => s ? `<span class="dstat ${statusCls(s)}">${esc(s)}</span>` : '';
+
+  // Drug table columns: [key, header, class, cell(drug, index)]
+  const DRUG_TABLE_COLS = (() => {
+    const txt = v => esc(v) || '–';
+    const code = v => v ? `<span class="code">${esc(v)}</span>` : '–';
+    return [
+      ['n', 'ลำดับ', 'n', (d, i) => i + 1], ['code', 'เลข', '', d => txt(d.code)], ['ptype', 'ประเภทผลิตภัณฑ์', '', d => txt(d.ptype)],
+      ['form', 'รูปแบบเภสัชภัณฑ์', '', d => txt(d.form)],
+      ['name', 'รายการยาและเวชภัณฑ์มิใช่ยา', 'name', d => `<b>${esc(d.name)}</b>${statusBadge(d.status)}`],
+      ['price', 'ราคา', 'num', d => d.price ? baht(d.price) : '–'], ['size', 'ขนาดบรรจุ', '', d => txt(d.size)],
+      ['types', 'ประเภท', '', d => d.types.map(typeTag).join(' ') || '–'], ['trade', 'ชื่อการค้า', '', d => txt(d.trade)],
+      ['strength', 'รหัสขนาดความแรงยา', '', d => code(d.strength)], ['code24', 'เลข 24 หลักใหม่', '', d => code(d.code24)],
+      ['ttmt', 'TTMTID ใหม่', '', d => code(d.ttmt)]
+    ];
+  })();
 
   const drugCard = d => `
     <a class="card" href="products.html?id=${esc(d.id)}">
@@ -255,7 +271,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       addEventListener('keydown', e => { if (e.key === 'Escape') m.classList.remove('open'); });
     }
     const facts = [['เลข', d.code], ['ประเภทผลิตภัณฑ์', d.ptype], ['รูปแบบเภสัชภัณฑ์', d.form], ['ขนาดบรรจุ', d.size],
-      ['ภาชนะบรรจุ', d.container], ['ประเภท', d.types.join(' · ')], ['ประเภท ยา', d.drugType],
+      ['ภาชนะบรรจุ', d.container], ['ประเภท', d.types.join(' · '), d.types.map(typeTag).join(' ')], ['ประเภท ยา', d.drugType],
       ['บัญชียาจากสมุนไพร', d.list], ['ชื่อการค้า', d.trade], ['รหัสขนาดความแรงยา', d.strength],
       ['เลข 24 หลักใหม่', d.code24], ['TTMTID ใหม่', d.ttmt]].filter(([, v]) => v);
     const texts = [['สรรพคุณยา / ข้อบ่งใช้', d.use], ['ขนาดและวิธีใช้', d.dose], ['ข้อห้ามใช้', d.contra], ['คำเตือน', d.warn],
@@ -268,9 +284,8 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
           <div class="badges-row">${statusBadge(d.status)}${d.units.map(u => `<span class="tag">${esc(u)}</span>`).join('')}</div>
           <h3>${esc(d.name)}</h3>
           <div class="price">${baht(d.price)} <small>${d.size ? '/ ' + esc(d.size) : ''}</small></div>
-          <dl class="facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+          <dl class="facts">${facts.map(([k, v, html]) => `<div><dt>${k}</dt><dd>${html || esc(v)}</dd></div>`).join('')}</dl>
           <dl>${texts.map(([k, v]) => `<dt>${k}</dt><dd>${textBlock(v)}</dd>`).join('')}</dl>
-          <a class="btn btn-primary" style="margin-top:24px" href="${esc(SITE.lineUrl)}" target="_blank" rel="noopener">สอบถาม / สั่งซื้อทาง LINE</a>
         </div>
       </div>`;
     requestAnimationFrame(() => m.classList.add('open'));
@@ -304,7 +319,8 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     const byOrder = order => (a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99);
     const units = [...new Set(DRUGS.flatMap(d => d.units))].sort(byOrder(UNIT_ORDER));
     const statuses = [...new Set(DRUGS.map(d => d.status).filter(Boolean))].sort(byOrder(['ผลิตปกติ']));
-    const st = render.drugs ||= { unit: 'โรงพยาบาล', status: 'ทั้งหมด', q: '' };
+    const DEFAULT_COLS = ['n', 'name', 'price', 'size', 'types', 'trade'];
+    const st = render.drugs ||= { unit: 'โรงพยาบาล', status: 'ทั้งหมด', q: '', cols: [...DEFAULT_COLS] };
     const narrow = matchMedia('(max-width: 860px)');
     if (DRUGS.length && st.unit !== 'ทั้งหมด' && !units.includes(st.unit)) st.unit = 'ทั้งหมด';
     if (st.status !== 'ทั้งหมด' && DRUGS.length && !statuses.includes(st.status)) st.status = 'ทั้งหมด';
@@ -317,28 +333,20 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       const list = DRUGS.filter(d => (st.unit === 'ทั้งหมด' || d.units.includes(st.unit)) &&
         (st.status === 'ทั้งหมด' || d.status === st.status) &&
         [d.name, d.trade, d.code, d.ptype, d.form, d.code24, d.ttmt].join(' ').toLowerCase().includes(q));
-      const code = v => v ? `<span class="code">${esc(v)}</span>` : '–';
-      const txt = v => esc(v) || '–';
-      const cols = [
-        ['ลำดับ', 'n', (d, i) => i + 1], ['เลข', '', d => txt(d.code)], ['ประเภทผลิตภัณฑ์', '', d => txt(d.ptype)],
-        ['รูปแบบเภสัชภัณฑ์', '', d => txt(d.form)],
-        ['รายการยาและเวชภัณฑ์มิใช่ยา', 'name', d => `<b>${esc(d.name)}</b>${statusBadge(d.status)}`],
-        ['ราคา', 'num', d => d.price ? baht(d.price) : '–'], ['ขนาดบรรจุ', '', d => txt(d.size)],
-        ['ประเภท', '', d => d.types.map(t => `<span class="tag">${esc(t)}</span>`).join(' ') || '–'], ['ชื่อการค้า', '', d => txt(d.trade)],
-        ['รหัสขนาดความแรงยา', '', d => code(d.strength)], ['เลข 24 หลักใหม่', '', d => code(d.code24)], ['TTMTID ใหม่', '', d => code(d.ttmt)]
-      ];
+      const cols = DRUG_TABLE_COLS.filter(([key]) => key === 'name' || st.cols.includes(key));
       // On phones the drug name comes first so it stays pinned on the left while scrolling
-      if (narrow.matches) cols.unshift(...cols.splice(4, 1));
-      $('#d-head').innerHTML = `<tr>${cols.map(([h, c]) => `<th class="${c}">${h}</th>`).join('')}</tr>`;
+      if (narrow.matches) cols.unshift(...cols.splice(cols.findIndex(([key]) => key === 'name'), 1));
+      $('#d-head').innerHTML = `<tr>${cols.map(([, h, c]) => `<th class="${c}">${h}</th>`).join('')}</tr>`;
       dbody.innerHTML = list.map((d, i) => `
-        <tr data-drug="${esc(d.id)}" tabindex="0">${cols.map(([, c, f]) => `<td class="${c}">${f(d, i)}</td>`).join('')}</tr>`).join('');
+        <tr data-drug="${esc(d.id)}" tabindex="0">${cols.map(([, , c, f]) => `<td class="${c}">${f(d, i)}</td>`).join('')}</tr>`).join('');
+      $('#d-table').classList.toggle('few', cols.length <= 7);
       $('#d-count').textContent = DRUGS.length ? `แสดง ${list.length} จาก ${DRUGS.length} รายการ` : '';
       const empty = $('#d-empty');
       empty.hidden = list.length > 0;
       empty.textContent = DRUGS.length ? 'ไม่พบรายการที่ค้นหา'
         : render.drugFailed ? 'ขออภัย โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง หรือโทรสอบถาม'
         : 'กำลังโหลดรายการ…';
-      const qs = new URLSearchParams({ unit: st.unit, status: st.status });
+      const qs = new URLSearchParams({ unit: st.unit, status: st.status, cols: [...st.cols, 'status'].join(',') });
       $('#d-print').href = 'drug-sheet.html?' + qs;
     };
     once('drugs', () => {
@@ -350,6 +358,18 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       });
       pick('#d-unit', 'unit'); pick('#d-status', 'status');
       $('#d-search').addEventListener('input', e => { st.q = e.target.value.trim(); render.drawDrugs(); });
+      // Column picker
+      const picker = $('#d-cols');
+      const tick = () => picker.querySelectorAll('input').forEach(i => { i.checked = i.value === 'name' || st.cols.includes(i.value); });
+      picker.querySelector('.cols-list').innerHTML = DRUG_TABLE_COLS.map(([key, h]) =>
+        `<label><input type="checkbox" value="${key}"${key === 'name' ? ' disabled' : ''}> ${h}</label>`).join('');
+      tick();
+      picker.addEventListener('change', e => {
+        st.cols = [...picker.querySelectorAll('input:checked')].map(i => i.value).filter(k => k !== 'name');
+        render.drawDrugs();
+      });
+      picker.querySelector('.cols-reset').addEventListener('click', () => { st.cols = [...DEFAULT_COLS]; tick(); render.drawDrugs(); });
+      document.addEventListener('click', e => { if (!picker.contains(e.target)) picker.open = false; });
       narrow.addEventListener('change', () => render.drawDrugs());
     });
     draw();

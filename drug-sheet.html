@@ -49,6 +49,14 @@
   body.port td.c, body.port td.s { font-size: 9px; white-space: normal; word-break: break-all; }
   body.port header img { height: 42px; }
   body.port h1 { font-size: 17px; }
+  .ned { color: #C62828; font-weight: 700; }
+  .pick { position: relative; }
+  .pick summary { list-style: none; font: 500 15px "Prompt", sans-serif; border-radius: 999px; padding: 8px 18px; border: 1px solid var(--line); cursor: pointer; }
+  .pick summary::-webkit-details-marker { display: none; }
+  .pick .pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 5; width: 250px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.14); padding: 10px 14px; }
+  .pick label { display: flex; gap: 8px; align-items: center; padding: 3px 0; font-size: 14px; }
+  .pick input { accent-color: var(--green); }
+  #pick-reset { margin-top: 6px; width: 100%; background: #fff; color: var(--green); border: 1px solid var(--line); padding: 6px; font-size: 14px; }
   @media print {
     body { background: #fff; }
     .bar { display: none; }
@@ -66,6 +74,8 @@
   </select>
   <select id="unit" aria-label="หน่วยงาน"></select>
   <select id="status" aria-label="สถานะ"></select>
+  <details class="pick" id="pick"><summary>⚙️ เลือกคอลัมน์</summary>
+    <div class="pop"><div id="pick-list"></div><button type="button" id="pick-reset">คืนค่าเริ่มต้น</button></div></details>
   <a href="products.html">← กลับหน้าผลิตภัณฑ์</a>
 </div>
 
@@ -81,8 +91,7 @@
   </header>
 
   <table>
-    <thead><tr><th>ลำดับ</th><th>เลข</th><th>ประเภทผลิตภัณฑ์</th><th>รูปแบบเภสัชภัณฑ์</th><th>รายการยาและเวชภัณฑ์มิใช่ยา</th><th>ราคา (บาท)</th>
-      <th>ขนาดบรรจุ</th><th>ประเภท</th><th>ชื่อการค้า</th><th>รหัสขนาดความแรงยา</th><th>เลข 24 หลักใหม่</th><th>TTMTID ใหม่</th><th>สถานะ</th></tr></thead>
+    <thead id="head"></thead>
     <tbody id="rows"><tr><td colspan="13" class="msg">กำลังโหลดรายการ…</td></tr></tbody>
   </table>
 
@@ -92,8 +101,8 @@
   </footer>
 </div>
 
-<script src="assets/data.js?v=20260930i"></script>
-<script src="assets/main.js?v=20260930i"></script>
+<script src="assets/data.js?v=20260930j"></script>
+<script src="assets/main.js?v=20260930j"></script>
 <script>
   // Builds the A4 drug list from the same sheet data the website uses.
   const UNIT_ORDER = ['โรงพยาบาล', 'ศูนย์แพทย์แผนไทยพนา', 'ร้านค้ามูลนิธิ'];
@@ -106,6 +115,25 @@
     sel.value = [...sel.options].some(o => o.value === cur) ? cur : 'ทั้งหมด';
   };
   const baht = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? esc(v) : n.toLocaleString('th-TH', { maximumFractionDigits: 2 }); };
+  // Columns: [key, header, td class, cell]
+  const COLS = [
+    ['n', 'ลำดับ', 'n', (d, i) => i + 1], ['code', 'เลข', '', d => esc(d.code)], ['ptype', 'ประเภทผลิตภัณฑ์', '', d => esc(d.ptype)],
+    ['form', 'รูปแบบเภสัชภัณฑ์', '', d => esc(d.form)], ['name', 'รายการยาและเวชภัณฑ์มิใช่ยา', 'name', d => esc(d.name)],
+    ['price', 'ราคา (บาท)', 'p', d => d.price ? baht(d.price) : ''], ['size', 'ขนาดบรรจุ', '', d => esc(d.size)],
+    ['types', 'ประเภท', '', d => d.types.map(t => /^NED$/i.test(t) ? `<span class="ned">${esc(t)}</span>` : esc(t)).join(', ')],
+    ['trade', 'ชื่อการค้า', '', d => esc(d.trade)], ['strength', 'รหัสขนาดความแรงยา', 'c', d => esc(d.strength)],
+    ['code24', 'เลข 24 หลักใหม่', 'c', d => esc(d.code24)], ['ttmt', 'TTMTID ใหม่', 'c', d => esc(d.ttmt)],
+    ['status', 'สถานะ', 's', d => esc(d.status)]
+  ];
+  const DEFAULT_COLS = ['n', 'code', 'name', 'price', 'size', 'types', 'status'];
+  let cols = qs.get('cols') ? qs.get('cols').split(',').filter(k => COLS.some(c => c[0] === k)) : [...DEFAULT_COLS];
+  const pickList = document.getElementById('pick-list');
+  pickList.innerHTML = COLS.map(([k, h]) => `<label><input type="checkbox" value="${k}"${k === 'name' ? ' disabled' : ''}> ${h}</label>`).join('');
+  const tick = () => pickList.querySelectorAll('input').forEach(i => { i.checked = i.value === 'name' || cols.includes(i.value); });
+  tick();
+  pickList.addEventListener('change', () => { cols = [...pickList.querySelectorAll('input:checked')].map(i => i.value); draw(); });
+  document.getElementById('pick-reset').onclick = () => { cols = [...DEFAULT_COLS]; tick(); draw(); };
+  document.addEventListener('click', e => { const p = document.getElementById('pick'); if (!p.contains(e.target)) p.open = false; });
   const statusCls = s => /ปกติ/.test(s) ? '' : /ปี/.test(s) ? 'long' : 'pre';
   function draw(failed) {
     document.getElementById('updated').textContent = SITE.drugsUpdated || '-';
@@ -122,13 +150,12 @@
     if (!unitSel.options.length) { options(unitSel, units, want.unit, 'ทุกหน่วยงาน'); options(statusSel, statuses, want.status, 'ทุกสถานะ'); }
     const unit = unitSel.value, status = statusSel.value;
     document.getElementById('title').textContent = 'รายการยาสมุนไพร' + (unit !== 'ทั้งหมด' ? ` (${unit})` : '');
+    const shown = COLS.filter(([k]) => k === 'name' || cols.includes(k));
+    document.getElementById('head').innerHTML = `<tr>${shown.map(([, h]) => `<th>${h}</th>`).join('')}</tr>`;
     const list = DRUGS.filter(d => (unit === 'ทั้งหมด' || d.units.includes(unit)) && (status === 'ทั้งหมด' || d.status === status));
-    body.innerHTML = list.map((d, i) => `<tr>
-      <td class="n">${i + 1}</td><td>${esc(d.code)}</td><td>${esc(d.ptype)}</td><td>${esc(d.form)}</td><td class="name">${esc(d.name)}</td>
-      <td class="p">${d.price ? baht(d.price) : ''}</td><td>${esc(d.size)}</td><td>${esc(d.types.join(', '))}</td><td>${esc(d.trade)}</td>
-      <td class="c">${esc(d.strength)}</td><td class="c">${esc(d.code24)}</td><td class="c">${esc(d.ttmt)}</td>
-      <td class="s ${statusCls(d.status)}">${esc(d.status)}</td></tr>`).join('')
-      || '<tr><td colspan="13" class="msg">ไม่มีรายการตามตัวกรองนี้</td></tr>';
+    body.innerHTML = list.map((d, i) => `<tr>${shown.map(([k, , c, f]) =>
+      `<td class="${c}${k === 'status' ? ' ' + statusCls(d.status) : ''}">${f(d, i)}</td>`).join('')}</tr>`).join('')
+      || `<tr><td colspan="${shown.length}" class="msg">ไม่มีรายการตามตัวกรองนี้</td></tr>`;
   }
   unitSel.addEventListener('change', () => draw());
   statusSel.addEventListener('change', () => draw());

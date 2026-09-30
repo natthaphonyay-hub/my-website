@@ -10,20 +10,40 @@
   const add = (svg, delay, dur, cls = 'draw') => parts.push(`<g class="${cls}" style="--d:${delay}s;--t:${dur}s">${svg}</g>`);
   const line = (d, w = 2) => `<path d="${d}" pathLength="1" fill="none" stroke="${G}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
 
-  // Ground and rhizome
-  add(line('M40 540 L380 540', 1.5), 0, .8);
-  add(line('M150 552 C150 540 176 538 186 548 C196 540 214 540 222 550 C232 542 252 544 258 552 C266 544 284 542 292 550 C302 544 314 552 310 564 C318 574 304 584 290 578 C278 586 258 584 250 576 C234 584 214 582 206 574 C194 584 170 582 164 572 C146 574 140 560 150 552 Z', 1.8), .4, 1.4);
-  add(line('M168 560 q6 4 12 0 M204 562 q6 4 12 0 M232 564 q6 4 10 0 M270 562 q6 4 10 0 M294 564 q5 3 9 0', 1.2), 1.3, .6);
+  // Ground in cross-section: a surface line, a soil band below it and a lower
+  // boundary line; the rhizome sits underground with shoots rising from it.
+  const SOIL = '#B98A4E', RHIZ = '#A87A2E', RHIZ_FILL = '#F6E3A6';
+  const under = []; // drawn outside the swaying group so the ground stays still
+  const addU = (svg, delay, dur, cls = 'draw') => under.push(`<g class="${cls}" style="--d:${delay}s;--t:${dur}s">${svg}</g>`);
+  const shape = (d, fill, stroke, w = 1.5) => `<path d="${d}" pathLength="1" fill="${fill}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+  addU(`<path d="M20 522 Q110 516 200 522 T380 521 L380 598 L20 598 Z" fill="url(#soil)"/>`, .2, .8, 'fade');
+  addU(line('M20 522 Q110 516 200 522 T380 521', 1.8), 0, .8);
+  addU(`<path d="M20 598 L380 598" pathLength="1" fill="none" stroke="${SOIL}" stroke-width="1.2" stroke-dasharray=".012 .01"/>`, .3, .8, 'fade');
+  // soil specks
+  addU([[60, 540], [96, 580], [128, 552], [338, 548], [356, 584], [312, 590], [72, 566], [120, 592], [350, 532]]
+    .map(([x, y], i) => `<ellipse cx="${x}" cy="${y}" rx="${2 + i % 3}" ry="${1.4 + i % 2}" fill="${SOIL}" opacity=".35"/>`).join(''), .6, .6, 'fade');
+  // grass tufts on the surface
+  addU(line('M84 519 l-4 -10 M88 519 l1 -13 M92 519 l5 -9 M334 520 l-4 -9 M338 520 l1 -12 M342 520 l5 -8', 1.2), .5, .6);
+
+  // Rhizome: finger branches, then the main knobby body, ring-like nodes, roots
+  addU(shape('M156 566 C140 570 122 582 112 578 C104 572 114 560 130 556 C140 553 152 556 160 560 Z', RHIZ_FILL, RHIZ), .7, .9, 'draw leafy');
+  addU(shape('M300 572 C318 580 334 594 346 590 C354 584 346 572 330 566 C320 562 306 562 298 566 Z', RHIZ_FILL, RHIZ), .8, .9, 'draw leafy');
+  addU(shape('M236 574 C234 586 226 594 218 592 C210 588 216 578 226 572 Z', RHIZ_FILL, RHIZ), .9, .8, 'draw leafy');
+  addU(shape('M146 562 C144 550 156 544 170 548 C174 541 190 540 194 548 C202 544 212 543 220 549 C228 543 240 543 246 549 C256 544 268 545 274 551 C284 546 298 547 306 553 C320 555 326 566 318 573 C312 581 298 580 290 576 C280 582 264 582 256 576 C244 582 228 582 218 576 C206 582 188 582 180 576 C168 582 150 578 146 562 Z', RHIZ_FILL, RHIZ, 1.8), .6, 1.4, 'draw leafy');
+  addU(`<path d="M178 549 q-5 13 1 27 M208 546 q-5 14 0 30 M238 546 q-5 14 0 30 M266 548 q-5 13 0 28 M296 551 q-4 12 1 25 M128 558 q-3 9 2 17 M326 568 q-4 9 2 17"
+    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width="1" opacity=".7"/>`, 1.6, .6);
+  addU(`<path d="M168 580 q-3 8 -1 15 M196 581 q2 7 -1 14 M230 581 q-4 6 -2 13 M262 580 q3 7 1 14 M284 579 q-2 8 1 14 M120 580 q-4 6 -3 12 M340 591 q2 4 0 6"
+    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".8" opacity=".55"/>`, 1.9, .6);
 
   // Pseudostems: [base x, top y, bend]
   const stems = [[180, 70, -14], [214, 150, 10], [246, 250, 16]];
   const stemPoint = (s, f) => {
-    const [x, top, bend] = s, y = 540 - (540 - top) * f;
+    const [x, top, bend] = s, y = 548 - (548 - top) * f;
     return [x + bend * Math.sin(f * Math.PI * .8), y];
   };
   stems.forEach((s, i) => {
     const [x, top, bend] = s;
-    add(line(`M${x} 540 Q${x + bend * 1.4} ${(540 + top) / 2} ${x + bend * .6} ${top}`, 2.4), 1.4 + i * .35, 1.6);
+    add(line(`M${x} 548 Q${x + bend * 1.4} ${(548 + top) / 2} ${x + bend * .6} ${top}`, 2.4), 1.4 + i * .35, 1.6);
   });
 
   // Leaves: long, narrow and pointed, alternating left/right up each stem
@@ -53,7 +73,7 @@
 
   // Flower: a slender stalk from the rhizome ending in a pointed cone of
   // overlapping bracts, with small orchid-like flowers peeking out.
-  add(line('M290 548 C292 520 300 494 298 450', 2), 5.2, .9);
+  add(line('M290 551 C292 520 300 494 298 450', 2), 5.2, .9);
   const rows = 8, baseY = 456, coneH = 100, scales = [];
   for (let i = 0; i < rows; i++) {
     const f = i / rows, y = baseY - f * coneH, w = 34 * (1 - f * .8), h = 22 - f * 8;
@@ -80,7 +100,12 @@
 
   box.classList.add('plai');
   box.innerHTML = `<svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <defs><linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D9C39A" stop-opacity=".55"/><stop offset="1" stop-color="#D9C39A" stop-opacity=".12"/></linearGradient>
+      <linearGradient id="edge"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".18" stop-color="#fff"/><stop offset=".82" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <mask id="edges" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect x="20" y="500" width="360" height="100" fill="url(#edge)"/></mask></defs>
     <g class="sway">${parts.join('')}</g>
+    <g mask="url(#edges)">${under.join('')}</g>
     <g class="falling">
       <path d="M0 0 C10 -6 26 -4 34 0 C26 4 10 6 0 0 Z" fill="rgba(31,122,77,.15)" stroke="${G}" stroke-width="1.2" style="--x:120px;--dly:9s"/>
       <path d="M0 0 C10 -6 26 -4 34 0 C26 4 10 6 0 0 Z" fill="rgba(31,122,77,.15)" stroke="${G}" stroke-width="1.2" style="--x:-90px;--dly:15s"/>

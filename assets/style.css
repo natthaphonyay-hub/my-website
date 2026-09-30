@@ -65,6 +65,8 @@ nav a:hover { color: var(--green); }
 .leafy path:first-child { fill-opacity: 0; animation: draw var(--t) ease-out var(--d) forwards, fillin .8s ease var(--d) forwards; }
 .draw ellipse { fill-opacity: 0; animation: draw var(--t) ease-out var(--d) forwards, fillin .6s ease calc(var(--d) + .3s) forwards; }
 .bloom { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; animation: bloom var(--t) cubic-bezier(.3,1.6,.5,1) var(--d) forwards; }
+.fade { opacity: 0; animation: fadein var(--t) ease var(--d) forwards; }
+@keyframes fadein { to { opacity: 1; } }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes fillin { to { fill-opacity: 1; } }
 @keyframes bloom { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
@@ -181,7 +183,7 @@ header.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
   section { padding-top: 72px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .draw path, .draw ellipse, .leafy path:first-child, .bloom, .sway, .falling path { animation: none; stroke-dashoffset: 0; fill-opacity: 1; opacity: 1; transform: none; }
+  .draw path, .draw ellipse, .leafy path:first-child, .bloom, .sway, .fade, .falling path { animation: none; stroke-dashoffset: 0; fill-opacity: 1; opacity: 1; transform: none; }
   .falling { display: none; }
   .reveal { opacity: 1; transform: none; }
 }

@@ -319,7 +319,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     const byOrder = order => (a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99);
     const units = [...new Set(DRUGS.flatMap(d => d.units))].sort(byOrder(UNIT_ORDER));
     const statuses = [...new Set(DRUGS.map(d => d.status).filter(Boolean))].sort(byOrder(['ผลิตปกติ']));
-    const DEFAULT_COLS = ['n', 'name', 'price', 'size', 'types', 'trade'];
+    const DEFAULT_COLS = ['n', 'price', 'size', 'types', 'code24', 'ttmt'];
     const st = render.drugs ||= { unit: 'โรงพยาบาล', status: 'ทั้งหมด', q: '', cols: [...DEFAULT_COLS] };
     const narrow = matchMedia('(max-width: 860px)');
     if (DRUGS.length && st.unit !== 'ทั้งหมด' && !units.includes(st.unit)) st.unit = 'ทั้งหมด';
@@ -339,7 +339,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       $('#d-head').innerHTML = `<tr>${cols.map(([, h, c]) => `<th class="${c}">${h}</th>`).join('')}</tr>`;
       dbody.innerHTML = list.map((d, i) => `
         <tr data-drug="${esc(d.id)}" tabindex="0">${cols.map(([, , c, f]) => `<td class="${c}">${f(d, i)}</td>`).join('')}</tr>`).join('');
-      $('#d-table').classList.toggle('few', cols.length <= 7);
+      $('#d-table').classList.toggle('few', cols.length <= 8);
       $('#d-count').textContent = DRUGS.length ? `แสดง ${list.length} จาก ${DRUGS.length} รายการ` : '';
       const empty = $('#d-empty');
       empty.hidden = list.length > 0;

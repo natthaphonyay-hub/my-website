@@ -316,7 +316,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   fill('#home-news', NEWS.slice(0, 3).map(n => listItem(n, 'news')).join(''));
   fill('#home-knowledge', ARTICLES.slice(0, 3).map(a => listItem(a, 'knowledge')).join(''));
   fill('#timeline', HISTORY.map(h => `
-    <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy">` : ''}</li>`).join(''));
+    <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<a href="${esc(h.image)}" target="_blank" rel="noopener"><img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy"></a>` : ''}</li>`).join(''));
   fill('#news-list', NEWS.map(n => postRow(n, 'news')).join(''));
 
   // Products: featured slider + drug table with unit / status filters

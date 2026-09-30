@@ -23,6 +23,7 @@ const SITE = {
   email: 'contact@example.com',
   address: 'ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา อ.พนา จ.อำนาจเจริญ',
   hours: 'จันทร์–ศุกร์ 08:30–16:30 น.',
+  website: 'https://www.panthaiphana.org', // footer link; '-' = hidden
   staffUrl: '#', // Google Drive folder shared with staff
   mapQuery: '15.690761941948466,104.83965918465745', // place name or coordinates
   // Google Maps > Share > Embed a map > copy the src="..." link

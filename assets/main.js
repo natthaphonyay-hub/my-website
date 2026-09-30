@@ -187,7 +187,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
         <div>
           <h4>ติดต่อ</h4>
           <p>โทร ${esc(SITE.phone)}<br>LINE ${esc(SITE.line)}</p>
-          <a href="https://www.panthaiphana.org" target="_blank" rel="noopener">panthaiphana.org</a>
+          ${SITE.website && SITE.website !== '-' ? `<a href="${esc(SITE.website)}" target="_blank" rel="noopener">${esc(SITE.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}</a>` : ''}
         </div>
         <div>
           <h4>เจ้าหน้าที่</h4>

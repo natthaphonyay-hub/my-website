@@ -340,3 +340,7 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
   .herbs td.num::before { content: attr(data-l); display: block; font-size: 13px; color: var(--muted); font-weight: 400; }
 }
 .map-btn { margin-top: 24px; }
+
+.tools-2 { align-items: center; margin: -12px 0 16px; gap: 12px; flex-wrap: wrap; }
+.tools-2 .only-open { margin: 0; }
+.print-link { border: 1px solid var(--line); background: var(--surface); padding: 10px 20px; font-size: 15px; }

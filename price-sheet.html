@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ประกาศราคารับซื้อสมุนไพร | พนาพรรณ</title>
+<link rel="icon" href="assets/logo-center.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 landscape; margin: 10mm 12mm; }
+  :root { --green: #1F7A4D; --soft: #E6F1EA; --gold: #C99A2E; --line: #D9D5C8; --muted: #6B6A63; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #E9E6DD; color: #22221F; font: 13px/1.45 "Sarabun", sans-serif; }
+  .bar { position: sticky; top: 0; z-index: 2; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;
+         padding: 12px 16px; background: #fff; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .bar button, .bar a { font: 500 15px "Prompt", sans-serif; border-radius: 999px; padding: 9px 20px; cursor: pointer; text-decoration: none; }
+  .bar button { background: var(--green); color: #fff; border: 0; }
+  .bar a { color: var(--green); border: 1px solid var(--line); }
+  .bar label { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+  .sheet { width: 297mm; min-height: 210mm; margin: 20px auto; padding: 10mm 12mm; background: #fff; box-shadow: 0 6px 30px rgba(0,0,0,.12); }
+  header { display: flex; align-items: center; gap: 14px; padding-bottom: 8px; border-bottom: 3px solid var(--green); }
+  header img { height: 58px; }
+  header .t { flex: 1; }
+  h1 { font: 600 22px "Prompt", sans-serif; margin: 0; color: var(--green); }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .date { text-align: right; font-size: 13px; color: var(--muted); }
+  .date b { display: block; font: 600 16px "Prompt", sans-serif; color: #22221F; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-variant-numeric: tabular-nums; }
+  th, td { border: 1px solid var(--line); padding: 3px 6px; }
+  thead th { background: var(--green); color: #fff; font: 500 12.5px "Prompt", sans-serif; text-align: center; }
+  thead tr:nth-child(2) th { background: #2E8B5E; font-size: 12px; }
+  thead th.gap { background: #3C7F9E; } thead tr:nth-child(2) th.gap { background: #4B91B0; }
+  thead th.org { background: #8A6D1F; } thead tr:nth-child(2) th.org { background: #A0822E; }
+  tbody tr:nth-child(even) td { background: #F8F7F2; }
+  td.n { text-align: center; color: var(--muted); width: 28px; }
+  td.name { font-weight: 500; }
+  td.u { text-align: center; color: var(--muted); width: 70px; }
+  td.p { text-align: right; width: 54px; }
+  td.p.a { font-weight: 600; }
+  td.x { text-align: center; color: #B0AEA4; font-size: 11px; }
+  tr.closed td { color: #A9A79E !important; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  footer { margin-top: 10px; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: var(--muted); }
+  footer b { color: #22221F; }
+  .msg { text-align: center; padding: 40px; color: var(--muted); font-size: 16px; }
+  @media print {
+    body { background: #fff; }
+    .bar { display: none; }
+    .sheet { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  @media (max-width: 1150px) { .sheet { transform-origin: top left; } }
+</style>
+</head>
+<body>
+<div class="bar">
+  <button onclick="print()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+  <label><input type="checkbox" id="only-open"> เฉพาะที่เปิดรับซื้อ</label>
+  <a href="farmers.html">← กลับหน้ารับซื้อสมุนไพร</a>
+</div>
+
+<div class="sheet" id="sheet">
+  <header>
+    <img src="assets/logo-center.png" alt="ศูนย์แพทย์แผนไทยพนา">
+    <div class="t">
+      <h1>ประกาศราคารับซื้อสมุนไพรจากเกษตรกร</h1>
+      <p>โรงงานผลิตยาสมุนไพร ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา จังหวัดอำนาจเจริญ</p>
+    </div>
+    <div class="date">อัปเดตราคาล่าสุด<b id="updated">-</b></div>
+    <img src="assets/logo-hospital.png" alt="โรงพยาบาลพนา">
+  </header>
+
+  <table>
+    <thead>
+      <tr><th rowspan="2">ลำดับ</th><th rowspan="2">รายการสมุนไพร</th><th rowspan="2">หน่วย</th>
+          <th colspan="3">ทั่วไป</th><th colspan="3" class="gap">GAP</th><th colspan="3" class="org">อินทรีย์ (Organic)</th></tr>
+      <tr><th>A</th><th>B</th><th>C</th><th class="gap">A</th><th class="gap">B</th><th class="gap">C</th><th class="org">A</th><th class="org">B</th><th class="org">C</th></tr>
+    </thead>
+    <tbody id="rows"><tr><td colspan="12" class="msg">กำลังโหลดราคา…</td></tr></tbody>
+  </table>
+
+  <footer>
+    <div>ราคาเป็นบาทต่อหน่วย · "งดรับ" = งดรับซื้อเกรดนั้นชั่วคราว · เกรดพิจารณาจากการตรวจคุณภาพ ณ วันรับซื้อ · ราคาอาจเปลี่ยนแปลงได้ โปรดสอบถามก่อนนำมาส่ง</div>
+    <div style="white-space:nowrap">ติดต่อ <b id="phone"></b> · LINE <b id="line"></b></div>
+  </footer>
+</div>
+
+<script src="assets/data.js?v=20260930d"></script>
+<script src="assets/main.js?v=20260930d"></script>
+<script>
+  // Builds the A4 price table from the same sheet data the website uses.
+  const TYPES = ['normal', 'gap', 'organic'];
+  const money = v => v.toLocaleString('th-TH', { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 2 });
+  const isOpen = h => TYPES.some(t => Object.values(h.cells[t] || {}).some(c => c.open));
+  function draw(failed) {
+    document.getElementById('updated').textContent = SITE.herbsUpdated || '-';
+    document.getElementById('phone').textContent = SITE.phone;
+    document.getElementById('line').textContent = SITE.line;
+    const only = document.getElementById('only-open').checked;
+    const list = HERB_PRICES.filter(h => !only || isOpen(h));
+    const body = document.getElementById('rows');
+    if (!HERB_PRICES.length) {
+      body.innerHTML = `<tr><td colspan="12" class="msg">${failed ? 'โหลดราคาไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' : 'กำลังโหลดราคา…'}</td></tr>`;
+      return;
+    }
+    body.innerHTML = list.map((h, i) => {
+      const cells = TYPES.map(t => ['A', 'B', 'C'].map(g => {
+        const c = h.cells[t]?.[g];
+        if (!c) return '<td class="x">–</td>';
+        return c.open ? `<td class="p${g === 'A' ? ' a' : ''}">${money(c.price)}</td>` : '<td class="x">งดรับ</td>';
+      }).join('')).join('');
+      return `<tr class="${isOpen(h) ? '' : 'closed'}"><td class="n">${i + 1}</td><td class="name">${esc(h.name)}</td><td class="u">${esc(h.unit || 'กก.')}</td>${cells}</tr>`;
+    }).join('');
+  }
+  document.getElementById('only-open').addEventListener('change', () => draw());
+  try { const c = readCache(); if (c) applySheets(JSON.parse(c)); } catch { /* ignore */ }
+  draw();
+  fetchSheets().then(raw => {
+    if (raw) { writeCache(JSON.stringify(raw)); applySheets(raw); }
+    draw(!HERB_PRICES.length);
+  });
+</script>
+</body>
+</html>

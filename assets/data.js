@@ -1,7 +1,7 @@
 // Google Sheet that holds the site content (the long ID in the sheet's URL:
 // docs.google.com/spreadsheets/d/<SHEET_ID>/edit). The sheet must be shared as
 // "Anyone with the link can view". Leave empty to use the sample data below.
-const SHEET_ID = '1MrbrsD1z2CfhMXfFtPJQJf0DHukzeoL9SNnMZiAEOVk';
+const SHEET_ID = '1f0HjI4xGR5Fzta1V1wR586-URVJX8W0APeBmnUZqkLo';
 
 // Sample data, used when SHEET_ID is empty or the sheet cannot be loaded.
 

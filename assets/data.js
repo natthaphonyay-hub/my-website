@@ -29,6 +29,7 @@ const SITE = {
   mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3841.141819163234!2d104.8397021!3d15.690622499999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31161280b35c8085%3A0xc1a27917679175f9!2z4Lio4Li54LiZ4Lii4LmM4LmB4Lie4LiX4Lii4LmM4LmB4Lic4LiZ4LmE4LiX4Lii4Lie4LiZ4Liy!5e0!3m2!1sth!2sth!4v1790598823602!5m2!1sth!2sth',
   mapUrl: 'https://maps.app.goo.gl/HVPosHJZ9CvTgshn6',
   herbsUpdated: '', // filled from the herb price sheet
+  herbsYear: '',
   drugsUpdated: '', // filled from the drug sheet
   drugsYear: '',
   gradeB: 70,       // % of grade A price

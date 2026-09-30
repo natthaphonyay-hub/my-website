@@ -41,7 +41,7 @@ const paras = v => String(v).split(/\n\s*\n|\n/).map(x => x.trim()).filter(Boole
 const driveImg = url => {
   // Turn a Google Drive share link into a direct image link.
   const m = String(url).match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);
-  return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : url;
+  return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600` : url;
 };
 
 // Fetches every tab as raw rows. Returns null when the sheet can't be reached.
@@ -124,6 +124,8 @@ function applySheets(raw) {
   if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
   const upd = herbCover?.find(r => /^อัปเดต/.test(String(r.key)));
   if (upd?.value) SITE.herbsUpdated = upd.value;
+  const year = herbCover?.find(r => /^ปีงบ/.test(String(r.key)));
+  if (year?.value) SITE.herbsYear = year.value;
 }
 
 // The last sheet data this browser saw, so repeat visits render instantly.
@@ -202,8 +204,13 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   const drugIcon = d => /ครีม|เจล|ขี้ผึ้ง|หม่อง|บาล์ม|ลูกประคบ/.test(d.form + d.name) ? '🧴'
     : /แคปซูล|เม็ด|ลูกกลอน/.test(d.form + d.name) ? '💊' : /ผง|ชา/.test(d.form + d.name) ? '🍵'
     : /น้ำ|สเปรย์|ไซรัป/.test(d.form + d.name) ? '🧪' : '🌿';
+  // Drive images: try the thumbnail link, with the lh3 link underneath as a fallback
+  const imgLayers = src => {
+    const id = String(src).match(/thumbnail\?id=([\w-]+)/)?.[1];
+    return id ? `url('${esc(src)}') center/contain no-repeat,url('https://lh3.googleusercontent.com/d/${id}')` : `url('${esc(src)}')`;
+  };
   const drugThumb = (d, cls = 'thumb') => d.image
-    ? `<div class="${cls}" style="background:#F3F1EA url(${esc(d.image)}) center/contain no-repeat"></div>`
+    ? `<div class="${cls}" style="background:${imgLayers(d.image)} center/contain no-repeat,#F3F1EA"></div>`
     : `<div class="${cls}" style="background:linear-gradient(135deg,#E6F1EA,#F6F0D4)"><span>${drugIcon(d)}</span></div>`;
   const baht = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? esc(v) : '฿' + n.toLocaleString('th-TH', { maximumFractionDigits: 2 }); };
   const statusCls = s => /ปกติ/.test(s) ? 'ok' : /ปี/.test(s) ? 'long' : 'pre';

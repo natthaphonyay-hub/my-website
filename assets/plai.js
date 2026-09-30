@@ -12,28 +12,30 @@
 
   // Ground in cross-section: a surface line, a soil band below it and a lower
   // boundary line; the rhizome sits underground with shoots rising from it.
-  const SOIL = '#B98A4E', RHIZ = '#A87A2E', RHIZ_FILL = '#F6E3A6';
+  const SOIL = '#B98A4E', RHIZ = '#A87A2E', RHIZ_FILL = '#F2E0B0';
   const under = []; // drawn outside the swaying group so the ground stays still
   const addU = (svg, delay, dur, cls = 'draw') => under.push(`<g class="${cls}" style="--d:${delay}s;--t:${dur}s">${svg}</g>`);
   const shape = (d, fill, stroke, w = 1.5) => `<path d="${d}" pathLength="1" fill="${fill}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
   addU(`<path d="M20 522 Q110 516 200 522 T380 521 L380 598 L20 598 Z" fill="url(#soil)"/>`, .2, .8, 'fade');
   addU(line('M20 522 Q110 516 200 522 T380 521', 1.8), 0, .8);
-  addU(`<path d="M20 598 L380 598" pathLength="1" fill="none" stroke="${SOIL}" stroke-width="1.2" stroke-dasharray=".012 .01"/>`, .3, .8, 'fade');
   // soil specks
   addU([[60, 540], [96, 580], [128, 552], [338, 548], [356, 584], [312, 590], [72, 566], [120, 592], [350, 532]]
     .map(([x, y], i) => `<ellipse cx="${x}" cy="${y}" rx="${2 + i % 3}" ry="${1.4 + i % 2}" fill="${SOIL}" opacity=".35"/>`).join(''), .6, .6, 'fade');
   // grass tufts on the surface
   addU(line('M84 519 l-4 -10 M88 519 l1 -13 M92 519 l5 -9 M334 520 l-4 -9 M338 520 l1 -12 M342 520 l5 -8', 1.2), .5, .6);
 
-  // Rhizome: finger branches, then the main knobby body, ring-like nodes, roots
-  addU(shape('M156 566 C140 570 122 582 112 578 C104 572 114 560 130 556 C140 553 152 556 160 560 Z', RHIZ_FILL, RHIZ), .7, .9, 'draw leafy');
-  addU(shape('M300 572 C318 580 334 594 346 590 C354 584 346 572 330 566 C320 562 306 562 298 566 Z', RHIZ_FILL, RHIZ), .8, .9, 'draw leafy');
-  addU(shape('M236 574 C234 586 226 594 218 592 C210 588 216 578 226 572 Z', RHIZ_FILL, RHIZ), .9, .8, 'draw leafy');
-  addU(shape('M146 562 C144 550 156 544 170 548 C174 541 190 540 194 548 C202 544 212 543 220 549 C228 543 240 543 246 549 C256 544 268 545 274 551 C284 546 298 547 306 553 C320 555 326 566 318 573 C312 581 298 580 290 576 C280 582 264 582 256 576 C244 582 228 582 218 576 C206 582 188 582 180 576 C168 582 150 578 146 562 Z', RHIZ_FILL, RHIZ, 1.8), .6, 1.4, 'draw leafy');
-  addU(`<path d="M178 549 q-5 13 1 27 M208 546 q-5 14 0 30 M238 546 q-5 14 0 30 M266 548 q-5 13 0 28 M296 551 q-4 12 1 25 M128 558 q-3 9 2 17 M326 568 q-4 9 2 17"
-    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width="1" opacity=".7"/>`, 1.6, .6);
-  addU(`<path d="M168 580 q-3 8 -1 15 M196 581 q2 7 -1 14 M230 581 q-4 6 -2 13 M262 580 q3 7 1 14 M284 579 q-2 8 1 14 M120 580 q-4 6 -3 12 M340 591 q2 4 0 6"
-    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".8" opacity=".55"/>`, 1.9, .6);
+  // Rhizome: a flat, jointed piece lying sideways, short knobs rising into
+  // each shoot, one finger turning up at the right, a cut end showing the
+  // yellow flesh on the left, thin node rings, a pink bud and a few roots.
+  addU(shape('M262 575 C268 583 278 588 285 584 C288 578 280 573 271 572 Z', RHIZ_FILL, RHIZ, 1.3), .7, .6, 'draw leafy');
+  addU(shape('M146 556 L174 554 C174 547 186 545 188 554 L208 555 C209 547 221 546 222 555 L240 556 C241 548 253 547 254 556 L285 557 C286 550 297 550 298 558 L306 559 C316 551 326 543 334 541 C339 541 339 548 335 552 C327 562 318 570 306 574 C280 578 220 578 180 576 C162 576 150 575 146 574 Z', RHIZ_FILL, RHIZ, 1.6), .6, 1.4, 'draw leafy');
+  addU(`<ellipse cx="146" cy="565" rx="5.5" ry="9.5" fill="#F4C542" stroke="${RHIZ}" stroke-width="1.3" pathLength="1"/>
+    <ellipse cx="146" cy="565" rx="2.6" ry="5.2" fill="none" stroke="#E0A92E" stroke-width=".9"/>`, 1.4, .5, 'fade');
+  addU(`<path d="M166 556 q-3 10 0 19 M198 556 q-3 10 0 20 M231 557 q-3 10 0 19 M268 558 q-3 9 0 18 M314 556 q5 5 12 3"
+    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".9" opacity=".6"/>`, 1.6, .6);
+  addU(`<path d="M264 557 C264 551 268 546 271 543 C273 548 272 553 270 557 Z" fill="#EBCFD3" stroke="${BRACT}" stroke-width="1" pathLength="1"/>`, 1.7, .5, 'fade');
+  addU(`<path d="M172 576 q-3 7 -1 13 M204 577 q2 6 -1 12 M238 577 q-3 6 -2 11 M296 572 q3 6 2 11 M156 575 q-4 5 -3 10"
+    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".8" opacity=".5"/>`, 1.9, .6);
 
   // Pseudostems: [base x, top y, bend]
   const stems = [[180, 70, -14], [214, 150, 10], [246, 250, 16]];

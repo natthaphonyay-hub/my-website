@@ -3,6 +3,12 @@
 // "Anyone with the link can view". Leave empty to use the sample data below.
 const SHEET_ID = '1f0HjI4xGR5Fzta1V1wR586-URVJX8W0APeBmnUZqkLo';
 
+// Separate sheet with herb buying prices (farmers page). Tab "ราคา": one row per
+// herb x plot type x grade, columns in this order: date, item, plot type
+// (ทั่วไป / GAP / Organic), grade (A/B/C), unit, price, show, status (TRUE = buying).
+// Tab "ปก": key/value rows; the key starting with "อัปเดต" is the update date.
+const HERB_SHEET_ID = '1A39S4t1_z1dGhEDE0SGXueMWPJZbL9cqO6CGROCvSwo';
+
 // Sample data, used when SHEET_ID is empty or the sheet cannot be loaded.
 
 const SITE = {
@@ -17,7 +23,7 @@ const SITE = {
   // Google Maps > Share > Embed a map > copy the src="..." link
   mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3841.141819163234!2d104.8397021!3d15.690622499999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31161280b35c8085%3A0xc1a27917679175f9!2z4Lio4Li54LiZ4Lii4LmM4LmB4Lie4LiX4Lii4LmM4LmB4Lic4LiZ4LmE4LiX4Lii4Lie4LiZ4Liy!5e0!3m2!1sth!2sth!4v1790598823602!5m2!1sth!2sth',
   mapUrl: 'https://maps.app.goo.gl/HVPosHJZ9CvTgshn6',
-  herbsUpdated: '25 สิงหาคม 2569',
+  herbsUpdated: '', // filled from the herb price sheet
   gradeB: 70,       // % of grade A price
   gradeC: 40,
   gapBonus: 10,     // % added for GAP-certified
@@ -108,49 +114,7 @@ let HISTORY = [
   { year: '2569', text: 'ผ่านการตรวจประเมินมาตรฐาน GMP ประจำปี' }
 ];
 
-// Herbs bought from farmers. price = grade A price per unit; grades B/C and
-// GAP/organic prices are calculated from the rules in SITE.
-let HERBS = [
-  { code: '1001', name: 'กระเจี๊ยบแดง สด', unit: 'kg', price: 25 },
-  { code: '1002', name: 'กระทือ สด', unit: 'kg', price: 10 },
-  { code: '1003', name: 'กระเทียม สด', unit: 'kg', price: 30 },
-  { code: '1004', name: 'กะเม็ง สด', unit: 'kg', price: 10 },
-  { code: '1084', name: 'กัญชาส่วนก้าน สด', unit: 'kg', price: 580 },
-  { code: '1083', name: 'กัญชาส่วนช่อดอก สด', unit: 'kg', price: 2400 },
-  { code: '1080', name: 'กัญชาส่วนใบ สด', unit: 'kg', price: 720 },
-  { code: '1082', name: 'กัญชาส่วนราก สด', unit: 'kg', price: 1500 },
-  { code: '1081', name: 'กัญชาส่วนลำต้น สด', unit: 'kg', price: 410 },
-  { code: '1005', name: 'ขมิ้นชัน สด', unit: 'kg', price: 20 },
-  { code: '1006', name: 'ขมิ้นอ้อย สด', unit: 'kg', price: 15 },
-  { code: '1008', name: 'ข่าบ้าน สด', unit: 'kg', price: 15 },
-  { code: '1009', name: 'ข่าป่า สด', unit: 'kg', price: 15 },
-  { code: '1012', name: 'ขิง สด', unit: 'kg', price: 45 },
-  { code: '1015', name: 'ชุมเห็ดเทศ สด', unit: 'kg', price: 20 },
-  { code: '1055', name: 'ดอกอัญชัน สด', unit: 'kg', price: 15 },
-  { code: '1019', name: 'ตะไคร้บ้าน สด', unit: 'kg', price: 10 },
-  { code: '1020', name: 'ตะไคร้หอม สด', unit: 'kg', price: 10 },
-  { code: '1021', name: 'เตยหอม สด', unit: 'kg', price: 10 },
-  { code: '1025', name: 'น้ำนมราชสีห์ สด', unit: 'kg', price: 15 },
-  { code: '1026', name: 'บอระเพ็ด สด', unit: 'kg', price: 5 },
-  { code: '1027', name: 'บัวบก สด', unit: 'kg', price: 20 },
-  { code: '1028', name: 'ใบขี้เหล็ก สด', unit: 'kg', price: 20 },
-  { code: '1085', name: 'ใบมะขามแขก สด', unit: 'kg', price: 30 },
-  { code: '1079', name: 'ใบสะเดา สด', unit: 'kg', price: 5 },
-  { code: '1086', name: 'ผักมะขามแขก สด', unit: 'kg', price: 35 },
-  { code: '1032', name: 'เพชรสังฆาต สด', unit: 'kg', price: 10 },
-  { code: '1033', name: 'ไพล สด', unit: 'kg', price: 30 },
-  { code: '1034', name: 'ฟ้าทะลายโจร สด', unit: 'kg', price: 30 },
-  { code: '1036', name: 'มะขามป้อม สด', unit: 'kg', price: 30 },
-  { code: '1037', name: 'มะขามเปียก', unit: 'kg', price: 70 },
-  { code: '1040', name: 'รางจืด สด', unit: 'kg', price: 25 },
-  { code: '1901', name: 'ว่านจอด สด', unit: 'kg', price: 100 },
-  { code: '1906', name: 'ว่านตูบหมูบ สด', unit: 'kg', price: 100 },
-  { code: '1903', name: 'ว่านถอด สด', unit: 'kg', price: 100 },
-  { code: '1902', name: 'ว่านถอนพิษ สด', unit: 'kg', price: 100 },
-  { code: '1905', name: 'ว่านทรง สด', unit: 'kg', price: 100 },
-  { code: '1904', name: 'ว่านหอมแดง สด', unit: 'kg', price: 100 },
-  { code: '1044', name: 'เสลดพังพอนตัวเมีย สด', unit: 'kg', price: 15 },
-  { code: '1045', name: 'หญ้าดอกขาว สด', unit: 'kg', price: 20 },
-  { code: '1046', name: 'หญ้าหนวดแมว สด', unit: 'kg', price: 20 },
-  { code: '1057', name: 'หัวหอมแดง สด', unit: 'kg', price: 25 }
-];
+// Herb buying prices, filled from HERB_SHEET_ID (no built-in copy, so stale
+// prices are never shown).
+let HERB_PRICES = [];
+

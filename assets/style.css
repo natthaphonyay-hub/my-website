@@ -428,3 +428,12 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
 .cols-list input:disabled + * , .cols-list label:has(input:disabled) { color: var(--muted); cursor: default; }
 .cols-reset { margin-top: 8px; width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px; font: 500 14px "Prompt", sans-serif; color: var(--green); cursor: pointer; }
 @media (max-width: 860px) { .cols-pick { margin-left: 0; } .cols-pop { left: 0; right: auto; } }
+
+/* Pager (news / knowledge) */
+.pager { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; margin-top: 32px; }
+.pager:empty { display: none; }
+.pager button { min-width: 42px; height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font: 500 15px "Prompt", sans-serif; color: var(--text); cursor: pointer; }
+.pager button:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
+.pager button.on { background: var(--green); border-color: var(--green); color: #fff; }
+.pager button:disabled { opacity: .4; cursor: default; }
+.pager span { color: var(--muted); padding: 0 2px; }

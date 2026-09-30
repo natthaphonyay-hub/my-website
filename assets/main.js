@@ -317,7 +317,35 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   fill('#home-knowledge', ARTICLES.slice(0, 3).map(a => listItem(a, 'knowledge')).join(''));
   fill('#timeline', HISTORY.map(h => `
     <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<a href="${esc(h.image)}" target="_blank" rel="noopener"><img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy"></a>` : ''}</li>`).join(''));
-  fill('#news-list', NEWS.map(n => postRow(n, 'news')).join(''));
+  // Paged lists (news, knowledge): 12 per page, page kept in the URL (?page=2)
+  const PER_PAGE = 12;
+  const qsGet = k => new URLSearchParams(location.search).get(k);
+  const qsSet = (k, v) => {
+    const q = new URLSearchParams(location.search);
+    if (v && v !== 1 && v !== 'ทั้งหมด') q.set(k, v); else q.delete(k);
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
+  };
+  function paged(box, list, row, redraw) {
+    const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+    const cur = Math.min(pages, Math.max(1, parseInt(qsGet('page')) || 1));
+    box.innerHTML = list.slice((cur - 1) * PER_PAGE, cur * PER_PAGE).map(row).join('');
+    let nav = box.nextElementSibling?.classList.contains('pager') ? box.nextElementSibling : null;
+    if (!nav) { nav = document.createElement('nav'); nav.className = 'pager'; nav.setAttribute('aria-label', 'เลขหน้า'); box.after(nav); }
+    if (pages < 2) { nav.innerHTML = ''; return; }
+    // 1 … 4 5 6 … 10
+    const nums = [...new Set([1, cur - 1, cur, cur + 1, pages])].filter(n => n >= 1 && n <= pages).sort((x, y) => x - y);
+    const btn = (n, label, extra = '') => `<button data-p="${n}"${extra}>${label}</button>`;
+    nav.innerHTML = btn(cur - 1, '‹ ก่อนหน้า', cur === 1 ? ' disabled' : '') +
+      nums.map((n, i) => (i && n - nums[i - 1] > 1 ? '<span>…</span>' : '') + btn(n, n, n === cur ? ' class="on" aria-current="page"' : '')).join('') +
+      btn(cur + 1, 'ถัดไป ›', cur === pages ? ' disabled' : '');
+    nav.onclick = e => {
+      const b = e.target.closest('button[data-p]'); if (!b || b.disabled) return;
+      qsSet('page', +b.dataset.p); redraw();
+      box.closest('section').scrollIntoView({ behavior: 'smooth' });
+    };
+  }
+  const nlist = $('#news-list');
+  if (nlist) (render.drawNews = () => paged(nlist, NEWS, n => postRow(n, 'news'), render.drawNews))();
 
   // Products: featured slider + drug table with unit / status filters
   const dbody = $('#d-body');
@@ -418,13 +446,15 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   const alist = $('#article-list');
   if (alist) {
     const tags = ['ทั้งหมด', ...new Set(ARTICLES.map(a => a.tag))];
+    render.tag ??= qsGet('tag') || 'ทั้งหมด';
     if (!tags.includes(render.tag)) render.tag = 'ทั้งหมด';
-    const draw = () => { alist.innerHTML = ARTICLES.filter(a => render.tag === 'ทั้งหมด' || a.tag === render.tag).map(a => postRow(a, 'knowledge')).join(''); };
+    const draw = () => paged(alist, ARTICLES.filter(a => render.tag === 'ทั้งหมด' || a.tag === render.tag), a => postRow(a, 'knowledge'), render.drawArticles);
     $('#tag-chips').innerHTML = tags.map(t => `<button class="chip${t === render.tag ? ' on' : ''}">${esc(t)}</button>`).join('');
     once('tags', () => $('#tag-chips').addEventListener('click', e => {
       const b = e.target.closest('.chip'); if (!b) return;
       $('#tag-chips').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
       render.tag = b.textContent;
+      qsSet('tag', render.tag); qsSet('page', 1);
       render.drawArticles();
     }));
     render.drawArticles = draw;

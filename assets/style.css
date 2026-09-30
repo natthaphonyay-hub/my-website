@@ -290,7 +290,8 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
   .hero .leaves { width: 75%; right: -14%; opacity: .3; }
   .page-hero .leaves { width: 130px; right: 0; opacity: .5; }
 }
-.timeline img { margin-top: 12px; border-radius: 12px; width: 100%; max-width: 360px; aspect-ratio: 4/3; object-fit: cover; }
+.history { max-width: 760px; margin: 0 auto; }
+.timeline img { margin-top: 12px; border-radius: 12px; width: auto; max-width: min(100%, 560px); max-height: 480px; height: auto; object-fit: contain; box-shadow: 0 4px 16px rgba(0,0,0,.06); cursor: zoom-in; }
 
 /* Farmers page */
 .updated { margin-top: 16px; display: inline-block; background: rgba(255,255,255,.75); padding: 6px 16px; border-radius: 999px; font-size: 15px; color: var(--green); }

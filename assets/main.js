@@ -187,7 +187,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
         <div>
           <h4>ติดต่อ</h4>
           <p>โทร ${esc(SITE.phone)}<br>LINE ${esc(SITE.line)}</p>
-          <a href="https://www.panthaiphana.org" target="_blank" rel="noopener">panthaiphana.org</a>
+          ${SITE.website && SITE.website !== '-' ? `<a href="${esc(SITE.website)}" target="_blank" rel="noopener">${esc(SITE.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}</a>` : ''}
         </div>
         <div>
           <h4>เจ้าหน้าที่</h4>
@@ -316,7 +316,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   fill('#home-news', NEWS.slice(0, 3).map(n => listItem(n, 'news')).join(''));
   fill('#home-knowledge', ARTICLES.slice(0, 3).map(a => listItem(a, 'knowledge')).join(''));
   fill('#timeline', HISTORY.map(h => `
-    <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy">` : ''}</li>`).join(''));
+    <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<a href="${esc(h.image)}" target="_blank" rel="noopener"><img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy"></a>` : ''}</li>`).join(''));
   fill('#news-list', NEWS.map(n => postRow(n, 'news')).join(''));
 
   // Products: featured slider + drug table with unit / status filters
@@ -405,7 +405,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       slides.forEach((s, j) => s.classList.toggle('active', j === fs.cur));
       dots.forEach((b, j) => { b.classList.toggle('on', j === fs.cur); b.onclick = () => go(j); });
       clearTimeout(fs.timer);
-      if (slides.length > 1 && !reduce) fs.timer = setTimeout(() => go(fs.cur + 1), 7000);
+      if (slides.length > 1) fs.timer = setTimeout(() => go(fs.cur + 1), 7000);
     };
     go(fs.cur);
 
@@ -541,9 +541,9 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       slides.forEach((s, j) => s.classList.toggle('active', j === sl.cur));
       dots.forEach((d, j) => d.classList.toggle('on', j === sl.cur));
       bar.classList.remove('run'); void bar.offsetWidth;
-      if (!reduce) bar.classList.add('run');
+      bar.classList.add('run');
       clearTimeout(sl.timer);
-      if (!reduce) sl.timer = setTimeout(() => go(sl.cur + 1), 6000);
+      sl.timer = setTimeout(() => go(sl.cur + 1), 6000);
     }
     sl.go = go;
     once('slider', () => {

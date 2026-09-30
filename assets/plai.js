@@ -24,22 +24,22 @@
   // grass tufts on the surface
   addU(line('M84 519 l-4 -10 M88 519 l1 -13 M92 519 l5 -9 M334 520 l-4 -9 M338 520 l1 -12 M342 520 l5 -8', 1.2), .5, .6);
 
-  // Rhizome: a knobbly, hand-like piece made of rounded lobes pointing in
-  // different directions. Lobes are painted back to front so each one hides
-  // part of the outline behind it, which reads as the joints of the rhizome.
-  const lobe = (cx, cy, rx, ry, a) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${a} ${cx} ${cy})"
-    pathLength="1" fill="${RHIZ_FILL}" stroke="${RHIZ}" stroke-width="1.6"/>`;
-  // roots first, so the rhizome sits on top of them
-  addU(`<path d="M168 578 C160 586 150 588 140 596 M176 580 C174 588 168 594 166 600 M200 582 C202 590 198 596 200 602 M236 582 C232 590 234 596 228 602 M262 588 C262 594 258 598 256 602 M152 580 C142 582 132 580 124 586"
+  // Rhizome: one hand-drawn outline with uneven knuckles and fingers; shoots
+  // rise from the knobs. Roots go first so the rhizome sits on top of them.
+  addU(`<path d="M168 582 C160 588 150 590 140 597 M178 584 C176 590 170 595 168 600 M204 585 C206 591 202 596 204 601 M236 582 C232 590 234 595 228 601 M270 590 C270 595 266 598 264 602 M150 590 C142 592 132 590 124 594"
     pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".9" stroke-linecap="round" opacity=".6"/>`, 1.8, .7);
-  [[150, 580, 15, 9, 35], [170, 570, 24, 12, 18], [258, 579, 17, 10, 30], [304, 549, 14, 10, -48], [282, 561, 26, 13, -25],
-   [186, 555, 14, 13, -70], [214, 552, 14, 13, -88], [246, 553, 13, 12, -100],
-   [252, 566, 28, 14, 6], [206, 566, 30, 15, -8]].forEach(([cx, cy, rx, ry, a], i) => addU(lobe(cx, cy, rx, ry, a), .6 + i * .08, .7));
-  // joint rings across the fingers and body
-  addU(`<path d="M148 562 q-3 8 1 16 M296 552 q4 7 4 16 M264 572 q-3 6 0 14 M204 553 q-2 14 0 28 M248 553 q-2 14 0 27"
-    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".9" opacity=".55"/>`, 1.5, .6);
+  addU(`<path d="M138 586 C132 580 136 572 146 570 C150 566 158 566 164 564 C166 556 170 548 178 546 C184 544 190 548 190 554
+    C194 552 198 551 202 553 C204 546 210 541 216 542 C222 543 224 549 223 555 C228 553 234 553 238 555 C240 548 246 545 252 546
+    C258 548 259 554 258 559 C264 558 272 556 278 554 C282 548 286 545 292 546 C296 547 297 552 296 556 C302 552 308 546 314 544
+    C322 541 328 546 326 553 C324 560 316 564 308 568 C300 572 292 574 286 576 C290 582 288 590 280 590 C272 591 266 586 264 580
+    C256 582 246 582 238 580 C230 584 218 586 206 583 C194 586 180 584 172 580 C164 584 156 590 148 591 C140 592 136 590 138 586 Z"
+    pathLength="1" fill="url(#rhiz)" stroke="${RHIZ}" stroke-width="1.6" stroke-linejoin="round"/>`, .6, 1.4, 'draw leafy');
+  // creases at the joints and faint rings along the fingers
+  addU(`<path d="M168 568 q7 -3 13 1 M199 559 q5 6 2 13 M233 560 q-4 7 0 14 M262 565 q7 4 15 2 M300 559 q4 4 11 2 M268 580 q5 -3 11 -1
+    M152 573 q2 6 -1 12 M318 548 q-3 5 0 11 M184 552 q-2 5 1 9 M218 548 q-2 5 1 9"
+    pathLength="1" fill="none" stroke="${RHIZ}" stroke-width=".9" stroke-linecap="round" opacity=".55"/>`, 1.5, .6);
   // papery sheaths where each shoot leaves the rhizome
-  addU([[182, 546], [214, 543], [250, 546], [290, 548]].map(([x, y], i) =>
+  addU([[183, 548], [216, 544], [252, 548], [292, 548]].map(([x, y], i) =>
     `<path d="M${x - 7} ${y + 4} C${x - 5} ${y - 8} ${x - 2} ${y - 16} ${x + 1} ${y - 22} C${x + 3} ${y - 14} ${x + 6} ${y - 6} ${x + 7} ${y + 4} Z"
       pathLength="1" fill="#E8E2BE" stroke="${RHIZ}" stroke-width="1.1" stroke-linejoin="round"/>`).join(''), 1.3, .6, 'fade');
 
@@ -118,6 +118,7 @@
   box.innerHTML = `<svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
     <defs><linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#D9C39A" stop-opacity=".55"/><stop offset="1" stop-color="#D9C39A" stop-opacity=".12"/></linearGradient>
+      <linearGradient id="rhiz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3E1B6"/><stop offset="1" stop-color="#D8B676"/></linearGradient>
       <linearGradient id="edge"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".18" stop-color="#fff"/><stop offset=".82" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
       <mask id="edges" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="600"><rect x="20" y="500" width="360" height="100" fill="url(#edge)"/></mask></defs>
     <g class="sway">${parts.join('')}</g>

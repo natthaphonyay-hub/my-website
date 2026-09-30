@@ -41,18 +41,37 @@ const driveImg = url => {
 
 // Fetches every tab as raw rows. Returns null when the sheet can't be reached.
 async function fetchSheets() {
-  if (!SHEET_ID) return null;
-  const url = tab => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}`;
-  const get = tab => fetch(url(tab), { cache: 'no-store' }).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
-  const tabs = ['settings', 'products', 'news', 'articles', 'history', 'herbs'];
-  const rows = await Promise.all(tabs.map(get));
+  const url = (id, tab) => `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}`;
+  const get = (id, tab) => !id ? Promise.resolve(null)
+    : fetch(url(id, tab), { cache: 'no-store' }).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
+  const jobs = [
+    ...['settings', 'products', 'news', 'articles', 'history'].map(t => [t, SHEET_ID, t]),
+    ['herbPrices', HERB_SHEET_ID, 'ราคา'], ['herbCover', HERB_SHEET_ID, 'ปก']
+  ];
+  const rows = await Promise.all(jobs.map(([, id, tab]) => get(id, tab)));
   if (rows.every(r => !r)) return null;
-  return Object.fromEntries(tabs.map((t, i) => [t, rows[i]]));
+  return Object.fromEntries(jobs.map(([key], i) => [key, rows[i]]));
+}
+
+// Turns the long price table (one row per herb x plot type x grade) into one
+// entry per herb: { name, unit, cells: { normal|gap|organic: { A|B|C: {price, open} } } }.
+function buildHerbPrices(rows) {
+  const TYPE = t => /gap/i.test(t) ? 'gap' : /organic|อินทรีย์/i.test(t) ? 'organic' : 'normal';
+  const truthy = v => /^(true|1|ใช่|yes|เปิด)/i.test(String(v).trim());
+  const byName = new Map();
+  rows.forEach(r => {
+    const [, name, plot, grade, unit, price, show, status] = Object.values(r).map(v => String(v ?? '').trim());
+    if (!name || !price || (show !== '' && !truthy(show))) return;
+    if (!byName.has(name)) byName.set(name, { name, unit, cells: {} });
+    const h = byName.get(name), t = TYPE(plot);
+    (h.cells[t] ||= {})[(grade || 'A').toUpperCase()] = { price: parseFloat(price.replace(/,/g, '')), open: truthy(status) };
+  });
+  return [...byName.values()];
 }
 
 // Copies raw sheet rows into the site data (SITE, PRODUCTS, ...).
 function applySheets(raw) {
-  const { settings, products, news, articles, history, herbs } = raw;
+  const { settings, products, news, articles, history, herbPrices, herbCover } = raw;
   if (settings) settings.forEach(r => { if (r.key && r.value) SITE[r.key] = r.value; });
   if (products?.length) PRODUCTS = products.filter(shown).map((r, i) => ({
     ...r, id: r.id || 'p' + i, price: r.price, featured: yes(r.featured),
@@ -66,7 +85,9 @@ function applySheets(raw) {
   }));
   if (history?.length) HISTORY = history.filter(shown).filter(r => r.year || r.text)
     .map(r => ({ ...r, image: r.image ? driveImg(r.image) : '' }));
-  if (herbs?.length) HERBS = herbs.filter(shown).filter(r => r.name);
+  if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
+  const upd = herbCover?.find(r => /^อัปเดต/.test(String(r.key)));
+  if (upd?.value) SITE.herbsUpdated = upd.value;
 }
 
 // The last sheet data this browser saw, so repeat visits render instantly.
@@ -293,30 +314,31 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   // Herb buying prices (farmers page)
   const hbody = $('#h-body');
   if (hbody) {
-    const pct = k => parseFloat(SITE[k]) || 0;
-    // Round down to the nearest 0.5 baht, as in the buying price sheet
-    const half = v => Math.floor(v * 2 + 1e-9) / 2;
-    const money = v => v.toLocaleString('th-TH', { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 1 });
-    const bonus = { normal: 0, gap: pct('gapBonus'), organic: pct('organicBonus') };
-    const isOpen = h => !/ปิด|งด|หยุด|no|closed/i.test(h.status || '');
+    const money = v => v.toLocaleString('th-TH', { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 2 });
+    const isOpen = (h, t) => Object.values(h.cells[t] || {}).some(c => c.open);
     const st = render.herbs ||= { type: 'normal', q: '', onlyOpen: false };
     $('#h-updated').textContent = SITE.herbsUpdated || '-';
-    $('#h-gap').textContent = `+${bonus.gap}%`;
-    $('#h-org').textContent = `+${bonus.organic}%`;
+    $('#h-gap').textContent = '';
+    $('#h-org').textContent = '';
     const draw = render.drawHerbs = () => {
       const { type, q, onlyOpen } = st;
-      const m = 1 + bonus[type] / 100;
-      const list = HERBS.filter(h => (!onlyOpen || isOpen(h)) && (h.name + h.code).includes(q));
-      hbody.innerHTML = list.map(h => {
-        const a = parseFloat(String(h.price).replace(/,/g, '')) || 0;
-        const g = [a, half(a * pct('gradeB') / 100), half(a * pct('gradeC') / 100)].map(v => money(half(v * m)));
-        const open = isOpen(h);
+      const list = HERB_PRICES.filter(h => h.cells[type] && (!onlyOpen || isOpen(h, type)) && h.name.includes(q));
+      hbody.innerHTML = list.map((h, i) => {
+        const cell = g => {
+          const c = h.cells[type][g];
+          return !c ? '–' : c.open ? money(c.price) : `<s title="งดรับชั่วคราว">${money(c.price)}</s>`;
+        };
+        const open = isOpen(h, type);
         return `<tr class="${open ? '' : 'closed'}">
-          <td data-l="รหัส">${esc(h.code)}</td><td data-l="รายการ" class="name">${esc(h.name)}</td><td data-l="หน่วย">${esc(h.unit || 'kg')}</td>
-          <td data-l="เกรด A" class="num a">${g[0]}</td><td data-l="เกรด B" class="num">${g[1]}</td><td data-l="เกรด C" class="num">${g[2]}</td>
-          <td data-l="สถานะ"><span class="status ${open ? 'on' : 'off'}">${esc(h.status || 'เปิดรับ')}</span></td></tr>`;
+          <td data-l="ลำดับ">${i + 1}</td><td data-l="รายการ" class="name">${esc(h.name)}</td><td data-l="หน่วย">${esc(h.unit || 'กิโลกรัม')}</td>
+          <td data-l="เกรด A" class="num a">${cell('A')}</td><td data-l="เกรด B" class="num">${cell('B')}</td><td data-l="เกรด C" class="num">${cell('C')}</td>
+          <td data-l="สถานะ"><span class="status ${open ? 'on' : 'off'}">${open ? 'เปิดรับ' : 'งดรับชั่วคราว'}</span></td></tr>`;
       }).join('');
-      $('#h-empty').hidden = list.length > 0;
+      const empty = $('#h-empty');
+      empty.hidden = list.length > 0;
+      empty.textContent = HERB_PRICES.length ? 'ไม่พบสมุนไพรที่ค้นหา'
+        : render.herbFailed ? 'ขออภัย โหลดราคาไม่สำเร็จ กรุณาลองใหม่อีกครั้ง หรือโทรสอบถาม'
+        : 'กำลังโหลดราคา…';
     };
     once('herbs', () => {
       $('#h-type').addEventListener('click', e => {
@@ -419,12 +441,20 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   // Refresh from the sheet in the background; re-render only when it changed.
-  fetchSheets().then(raw => {
+  // Pull fresh data from the sheets now, then every 2 minutes while the page is
+  // visible, so edits in the sheet appear without reloading.
+  let last = cached;
+  const refresh = () => fetchSheets().then(raw => {
+    if (!raw?.herbPrices?.length && !HERB_PRICES.length) { render.herbFailed = true; render.drawHerbs?.(); }
     if (!raw) return;
     const json = JSON.stringify(raw);
-    if (json === cached) return;
+    if (json === last) return;
+    last = json;
     writeCache(json);
     applySheets(raw);
     render();
   });
+  refresh();
+  setInterval(() => { if (!document.hidden) refresh(); }, 120000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 })();

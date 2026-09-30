@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="page-size">@page { size: A4 portrait; margin: 10mm; }</style>
 <style>
-  @page { size: A4 landscape; margin: 10mm 12mm; }
   :root { --green: #1F7A4D; --soft: #E6F1EA; --gold: #C99A2E; --line: #D9D5C8; --muted: #6B6A63; }
   * { box-sizing: border-box; }
   body { margin: 0; background: #E9E6DD; color: #22221F; font: 13px/1.45 "Sarabun", sans-serif; }
@@ -19,7 +19,7 @@
   .bar button { background: var(--green); color: #fff; border: 0; }
   .bar a { color: var(--green); border: 1px solid var(--line); }
   .bar label { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
-  .sheet { width: 297mm; min-height: 210mm; margin: 20px auto; padding: 10mm 12mm; background: #fff; box-shadow: 0 6px 30px rgba(0,0,0,.12); }
+  .sheet { width: 210mm; min-height: 297mm; margin: 20px auto; padding: 10mm 12mm; background: #fff; box-shadow: 0 6px 30px rgba(0,0,0,.12); }
   header { display: flex; align-items: center; gap: 14px; padding-bottom: 8px; border-bottom: 3px solid var(--green); }
   header img { height: 58px; }
   header .t { flex: 1; }
@@ -46,6 +46,15 @@
   footer { margin-top: 10px; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: var(--muted); }
   footer b { color: #22221F; }
   .msg { text-align: center; padding: 40px; color: var(--muted); font-size: 16px; }
+  body.land .sheet { width: 297mm; min-height: 210mm; }
+  /* Portrait is narrower: tighten the table so all 12 columns fit */
+  body:not(.land) table { font-size: 11.5px; }
+  body:not(.land) th, body:not(.land) td { padding: 2px 4px; }
+  body:not(.land) td.p { width: 38px; }
+  body:not(.land) td.u { width: 52px; }
+  body:not(.land) header img { height: 46px; }
+  body:not(.land) h1 { font-size: 19px; }
+  .bar select { font: 500 15px "Prompt", sans-serif; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); }
   @media print {
     body { background: #fff; }
     .bar { display: none; }
@@ -58,6 +67,10 @@
 <body>
 <div class="bar">
   <button onclick="print()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+  <select id="orient" aria-label="แนวกระดาษ">
+    <option value="portrait">📄 แนวตั้ง</option>
+    <option value="landscape">📃 แนวนอน</option>
+  </select>
   <label><input type="checkbox" id="only-open"> เฉพาะที่เปิดรับซื้อ</label>
   <a href="farmers.html">← กลับหน้ารับซื้อสมุนไพร</a>
 </div>
@@ -116,6 +129,18 @@
     }).join('');
   }
   document.getElementById('only-open').addEventListener('change', () => draw());
+  // Paper orientation: portrait by default, remembered per browser
+  const orient = document.getElementById('orient');
+  const setOrient = o => {
+    orient.value = o;
+    document.body.classList.toggle('land', o === 'landscape');
+    document.getElementById('page-size').textContent = `@page { size: A4 ${o}; margin: 10mm; }`;
+    try { localStorage.setItem('price-sheet-orient', o); } catch { /* ignore */ }
+  };
+  let saved = 'portrait';
+  try { saved = localStorage.getItem('price-sheet-orient') || 'portrait'; } catch { /* ignore */ }
+  setOrient(saved);
+  orient.addEventListener('change', () => setOrient(orient.value));
   try { const c = readCache(); if (c) applySheets(JSON.parse(c)); } catch { /* ignore */ }
   draw();
   fetchSheets().then(raw => {

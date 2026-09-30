@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20260930g">
+<link rel="stylesheet" href="assets/style.css?v=20260930h">
 </head>
 <body data-page="products">
 <div id="site-header"></div>
@@ -20,25 +20,40 @@
   <div class="wrap">
     <div class="crumb" id="crumb"><a href="index.html">หน้าแรก</a> / ผลิตภัณฑ์</div>
     <h1 id="a-title">ผลิตภัณฑ์</h1>
-    <p>ยาสมุนไพรมาตรฐาน GMP กดที่สินค้าเพื่อดูวิธีใช้และข้อควรระวัง</p>
+    <p>รายการยาสมุนไพรและเวชภัณฑ์ ผลิตภายใต้มาตรฐาน GMP กดที่รายการเพื่อดูรายละเอียดทั้งหมด</p>
+    <div class="updated"><b id="d-updated">-</b></div>
   </div>
 </div>
 
 <div class="wrap">
+  <section class="feature" id="d-feature" hidden></section>
+
   <section>
-    <div class="tools">
-      <div class="chips" id="chips"></div>
-      <input class="search" id="search" type="search" placeholder="🔍 ค้นหาผลิตภัณฑ์..." aria-label="ค้นหาผลิตภัณฑ์">
+    <div class="head"><div><div class="eyebrow">PRODUCTS</div><h2>รายการยาสมุนไพร</h2></div></div>
+    <div class="filters">
+      <div class="f-row"><span class="f-label">หน่วยงาน</span><div class="chips" id="d-unit"></div></div>
+      <div class="f-row"><span class="f-label">สถานะ</span><div class="chips" id="d-status"></div></div>
     </div>
-    <div class="grid" id="product-grid"></div>
-    <p class="empty" id="empty" hidden>ไม่พบผลิตภัณฑ์ที่ค้นหา</p>
+    <div class="row-between tools-2 d-tools">
+      <input class="search" id="d-search" type="search" placeholder="🔍 ค้นหาชื่อยา ชื่อการค้า หรือรหัส..." aria-label="ค้นหาผลิตภัณฑ์">
+      <a class="btn btn-ghost print-link" id="d-print" href="drug-sheet.html" target="_blank" rel="noopener">📄 ตาราง A4 (พิมพ์ / PDF)</a>
+    </div>
+    <div class="d-count" id="d-count"></div>
+    <div class="table-wrap drug-wrap">
+      <table class="drugs">
+        <thead id="d-head"></thead>
+        <tbody id="d-body"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="d-empty" hidden>กำลังโหลดรายการ…</p>
+    <p class="note">ราคาเป็นบาท · <span class="dstat ok">ผลิตปกติ</span> พร้อมจำหน่าย · <span class="dstat pre">Pre-Order</span> สั่งล่วงหน้าตามระยะเวลาที่ระบุ · เลื่อนตารางไปทางขวาเพื่อดูรหัสทั้งหมด</p>
   </section>
 </div>
 </main>
 
 <div id="site-footer"></div>
-<script src="assets/data.js?v=20260930g"></script>
-<script src="assets/plai.js?v=20260930g"></script>
-<script src="assets/main.js?v=20260930g"></script>
+<script src="assets/data.js?v=20260930h"></script>
+<script src="assets/plai.js?v=20260930h"></script>
+<script src="assets/main.js?v=20260930h"></script>
 </body>
 </html>

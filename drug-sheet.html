@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>รายการยาสมุนไพร | พนาพรรณ</title>
+<link rel="icon" href="assets/logo-center.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="page-size">@page { size: A4 landscape; margin: 8mm; }</style>
+<style>
+  :root { --green: #1F7A4D; --soft: #E6F1EA; --line: #D9D5C8; --muted: #6B6A63; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #E9E6DD; color: #22221F; font: 12px/1.35 "Sarabun", sans-serif; }
+  .bar { position: sticky; top: 0; z-index: 2; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;
+         padding: 12px 16px; background: #fff; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .bar button, .bar a { font: 500 15px "Prompt", sans-serif; border-radius: 999px; padding: 9px 20px; cursor: pointer; text-decoration: none; }
+  .bar button { background: var(--green); color: #fff; border: 0; }
+  .bar a { color: var(--green); border: 1px solid var(--line); }
+  .bar select { font: 500 15px "Prompt", sans-serif; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; }
+  .sheet { width: 297mm; min-height: 210mm; margin: 20px auto; padding: 8mm 10mm; background: #fff; box-shadow: 0 6px 30px rgba(0,0,0,.12); }
+  body.port .sheet { width: 210mm; min-height: 297mm; }
+  header { display: flex; align-items: center; gap: 14px; padding-bottom: 6px; border-bottom: 3px solid var(--green); }
+  header img { height: 52px; }
+  header .t { flex: 1; }
+  h1 { font: 600 20px "Prompt", sans-serif; margin: 0; color: var(--green); }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .date { text-align: right; font-size: 12px; color: var(--muted); }
+  .date b { display: block; font: 600 15px "Prompt", sans-serif; color: #22221F; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  th, td { border: 1px solid var(--line); padding: 3px 5px; vertical-align: top; }
+  thead th { background: var(--green); color: #fff; font: 500 11.5px "Prompt", sans-serif; text-align: center; }
+  tbody tr:nth-child(even) td { background: #F8F7F2; }
+  td.n { text-align: center; color: var(--muted); }
+  td.name { font-weight: 600; }
+  td.p { text-align: right; font-weight: 600; white-space: nowrap; }
+  td.c { font-size: 10.5px; white-space: nowrap; }
+  td.s { font-size: 10.5px; white-space: nowrap; }
+  td.s.pre { color: #8A6410; } td.s.long { color: #8E4A5E; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  footer { margin-top: 8px; display: flex; justify-content: space-between; gap: 16px; font-size: 11.5px; color: var(--muted); }
+  footer b { color: #22221F; }
+  .msg { text-align: center; padding: 40px; color: var(--muted); font-size: 16px; }
+  /* Portrait is narrower: tighten the table */
+  body.port table { font-size: 10px; }
+  body.port th, body.port td { padding: 2px 3px; }
+  body.port td.c, body.port td.s { font-size: 9px; white-space: normal; word-break: break-all; }
+  body.port header img { height: 42px; }
+  body.port h1 { font-size: 17px; }
+  @media print {
+    body { background: #fff; }
+    .bar { display: none; }
+    .sheet { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="bar">
+  <button onclick="print()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+  <select id="orient" aria-label="แนวกระดาษ">
+    <option value="landscape">📃 แนวนอน</option>
+    <option value="portrait">📄 แนวตั้ง</option>
+  </select>
+  <select id="unit" aria-label="หน่วยงาน"></select>
+  <select id="status" aria-label="สถานะ"></select>
+  <a href="products.html">← กลับหน้าผลิตภัณฑ์</a>
+</div>
+
+<div class="sheet">
+  <header>
+    <img src="assets/logo-center.png" alt="ศูนย์แพทย์แผนไทยพนา">
+    <div class="t">
+      <h1 id="title">รายการยาสมุนไพร</h1>
+      <p>โรงงานผลิตยาสมุนไพร ศูนย์แพทย์แผนไทยพนา โรงพยาบาลพนา จังหวัดอำนาจเจริญ <span id="year"></span></p>
+    </div>
+    <div class="date">อัปเดตล่าสุด<b id="updated">-</b></div>
+    <img src="assets/logo-hospital.png" alt="โรงพยาบาลพนา">
+  </header>
+
+  <table>
+    <thead><tr><th>ลำดับ</th><th>เลข</th><th>ประเภทผลิตภัณฑ์</th><th>รูปแบบเภสัชภัณฑ์</th><th>รายการยาและเวชภัณฑ์มิใช่ยา</th><th>ราคา (บาท)</th>
+      <th>ขนาดบรรจุ</th><th>ประเภท</th><th>ชื่อการค้า</th><th>รหัสขนาดความแรงยา</th><th>เลข 24 หลักใหม่</th><th>TTMTID ใหม่</th><th>สถานะ</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="13" class="msg">กำลังโหลดรายการ…</td></tr></tbody>
+  </table>
+
+  <footer>
+    <div>ราคาอาจเปลี่ยนแปลงได้ โปรดสอบถามก่อนสั่งซื้อ · Pre-Order = สั่งผลิตล่วงหน้าตามระยะเวลาที่ระบุ</div>
+    <div style="white-space:nowrap">ติดต่อ <b id="phone"></b> · LINE <b id="line"></b></div>
+  </footer>
+</div>
+
+<script src="assets/data.js?v=20260930h"></script>
+<script src="assets/main.js?v=20260930h"></script>
+<script>
+  // Builds the A4 drug list from the same sheet data the website uses.
+  const UNIT_ORDER = ['โรงพยาบาล', 'ศูนย์แพทย์แผนไทยพนา', 'ร้านค้ามูลนิธิ'];
+  const qs = new URLSearchParams(location.search);
+  const unitSel = document.getElementById('unit'), statusSel = document.getElementById('status');
+  const want = { unit: qs.get('unit') || 'โรงพยาบาล', status: qs.get('status') || 'ทั้งหมด' };
+  const byOrder = order => (a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99);
+  const options = (sel, list, cur, label) => {
+    sel.innerHTML = ['ทั้งหมด', ...list].map(v => `<option value="${esc(v)}">${v === 'ทั้งหมด' ? label : esc(v)}</option>`).join('');
+    sel.value = [...sel.options].some(o => o.value === cur) ? cur : 'ทั้งหมด';
+  };
+  const baht = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? esc(v) : n.toLocaleString('th-TH', { maximumFractionDigits: 2 }); };
+  const statusCls = s => /ปกติ/.test(s) ? '' : /ปี/.test(s) ? 'long' : 'pre';
+  function draw(failed) {
+    document.getElementById('updated').textContent = SITE.drugsUpdated || '-';
+    document.getElementById('year').textContent = SITE.drugsYear ? '· ' + SITE.drugsYear : '';
+    document.getElementById('phone').textContent = SITE.phone;
+    document.getElementById('line').textContent = SITE.line;
+    const body = document.getElementById('rows');
+    if (!DRUGS.length) {
+      body.innerHTML = `<tr><td colspan="13" class="msg">${failed ? 'โหลดรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' : 'กำลังโหลดรายการ…'}</td></tr>`;
+      return;
+    }
+    const units = [...new Set(DRUGS.flatMap(d => d.units))].sort(byOrder(UNIT_ORDER));
+    const statuses = [...new Set(DRUGS.map(d => d.status).filter(Boolean))].sort(byOrder(['ผลิตปกติ']));
+    if (!unitSel.options.length) { options(unitSel, units, want.unit, 'ทุกหน่วยงาน'); options(statusSel, statuses, want.status, 'ทุกสถานะ'); }
+    const unit = unitSel.value, status = statusSel.value;
+    document.getElementById('title').textContent = 'รายการยาสมุนไพร' + (unit !== 'ทั้งหมด' ? ` (${unit})` : '');
+    const list = DRUGS.filter(d => (unit === 'ทั้งหมด' || d.units.includes(unit)) && (status === 'ทั้งหมด' || d.status === status));
+    body.innerHTML = list.map((d, i) => `<tr>
+      <td class="n">${i + 1}</td><td>${esc(d.code)}</td><td>${esc(d.ptype)}</td><td>${esc(d.form)}</td><td class="name">${esc(d.name)}</td>
+      <td class="p">${d.price ? baht(d.price) : ''}</td><td>${esc(d.size)}</td><td>${esc(d.types.join(', '))}</td><td>${esc(d.trade)}</td>
+      <td class="c">${esc(d.strength)}</td><td class="c">${esc(d.code24)}</td><td class="c">${esc(d.ttmt)}</td>
+      <td class="s ${statusCls(d.status)}">${esc(d.status)}</td></tr>`).join('')
+      || '<tr><td colspan="13" class="msg">ไม่มีรายการตามตัวกรองนี้</td></tr>';
+  }
+  unitSel.addEventListener('change', () => draw());
+  statusSel.addEventListener('change', () => draw());
+  // Paper orientation: landscape by default, remembered per browser
+  const orient = document.getElementById('orient');
+  const setOrient = o => {
+    orient.value = o;
+    document.body.classList.toggle('port', o === 'portrait');
+    document.getElementById('page-size').textContent = `@page { size: A4 ${o}; margin: 8mm; }`;
+    try { localStorage.setItem('drug-sheet-orient', o); } catch { /* ignore */ }
+  };
+  let saved = 'landscape';
+  try { saved = localStorage.getItem('drug-sheet-orient') || 'landscape'; } catch { /* ignore */ }
+  setOrient(saved);
+  orient.addEventListener('change', () => setOrient(orient.value));
+  try { const c = readCache(); if (c) applySheets(JSON.parse(c)); } catch { /* ignore */ }
+  draw();
+  fetchSheets().then(raw => {
+    if (raw) { writeCache(JSON.stringify(raw)); applySheets(raw); }
+    draw(!DRUGS.length);
+  });
+</script>
+</body>
+</html>

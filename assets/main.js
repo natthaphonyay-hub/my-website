@@ -42,7 +42,7 @@ const driveImg = url => {
 // Fetches every tab as raw rows. Returns null when the sheet can't be reached.
 async function fetchSheets() {
   if (!SHEET_ID) return null;
-  const url = tab => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+  const url = tab => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}`;
   const get = tab => fetch(url(tab), { cache: 'no-store' }).then(r => r.ok ? r.text() : Promise.reject()).then(parseCSV).catch(() => null);
   const tabs = ['settings', 'products', 'news', 'articles', 'history', 'herbs'];
   const rows = await Promise.all(tabs.map(get));

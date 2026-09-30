@@ -344,3 +344,9 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
 .tools-2 { align-items: center; margin: -12px 0 16px; gap: 12px; flex-wrap: wrap; }
 .tools-2 .only-open { margin: 0; }
 .print-link { border: 1px solid var(--line); background: var(--surface); padding: 10px 20px; font-size: 15px; }
+
+.herbs tr.group td { font: 600 16px "Prompt", sans-serif; padding: 12px 16px; border-top: 2px solid var(--line); }
+.herbs tr.group.on td { background: var(--green-soft); color: var(--green); }
+.herbs tr.group.off td { background: #F6E6E6; color: #A34A4A; }
+.herbs tr.group small { font: 400 14px "Sarabun", sans-serif; opacity: .8; }
+@media (max-width: 860px) { .herbs tr.group { display: block; padding: 10px 16px; margin: 20px 0 10px; border-radius: 12px; } .herbs tr.group td { display: block; padding: 0; border: 0; background: none !important; } .herbs tr.group.on { background: var(--green-soft); } .herbs tr.group.off { background: #F6E6E6; } }

@@ -324,7 +324,10 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     const draw = render.drawHerbs = () => {
       const { type, q, onlyOpen } = st;
       const list = HERB_PRICES.filter(h => h.cells[type] && (!onlyOpen || isOpen(h, type)) && h.name.includes(q));
-      hbody.innerHTML = list.map((h, i) => {
+      // Open herbs first, then the ones not being bought, each under its own heading
+      const groups = [['เปิดรับซื้อ', list.filter(h => isOpen(h, type)), 'on'], ['งดรับชั่วคราว', list.filter(h => !isOpen(h, type)), 'off']];
+      hbody.innerHTML = groups.filter(([, g]) => g.length).map(([label, g, cls]) =>
+        `<tr class="group ${cls}"><td colspan="7">${label} <small>(${g.length} รายการ)</small></td></tr>` + g.map((h, i) => {
         const cell = g => {
           const c = h.cells[type][g];
           return !c ? '–' : c.open ? money(c.price) : `<s title="งดรับชั่วคราว">${money(c.price)}</s>`;
@@ -334,7 +337,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
           <td data-l="ลำดับ">${i + 1}</td><td data-l="รายการ" class="name">${esc(h.name)}</td><td data-l="หน่วย">${esc(h.unit || 'กิโลกรัม')}</td>
           <td data-l="เกรด A" class="num a">${cell('A')}</td><td data-l="เกรด B" class="num">${cell('B')}</td><td data-l="เกรด C" class="num">${cell('C')}</td>
           <td data-l="สถานะ"><span class="status ${open ? 'on' : 'off'}">${open ? 'เปิดรับ' : 'งดรับชั่วคราว'}</span></td></tr>`;
-      }).join('');
+      }).join('')).join('');
       const empty = $('#h-empty');
       empty.hidden = list.length > 0;
       empty.textContent = HERB_PRICES.length ? 'ไม่พบสมุนไพรที่ค้นหา'

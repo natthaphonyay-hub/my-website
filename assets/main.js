@@ -432,7 +432,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   if (hbody) {
     const money = v => v.toLocaleString('th-TH', { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 2 });
     const isOpen = (h, t) => Object.values(h.cells[t] || {}).some(c => c.open);
-    const st = render.herbs ||= { type: 'normal', q: '', onlyOpen: false };
+    const st = render.herbs ||= { type: 'normal', q: '', onlyOpen: true };
     $('#h-updated').textContent = SITE.herbsUpdated || '-';
     $('#h-gap').textContent = '';
     $('#h-org').textContent = '';

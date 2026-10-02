@@ -108,26 +108,8 @@ function buildDrugs(rows) {
   }).filter(d => d.name && (d.show === '' || yes(d.show)));
 }
 
-// Sortable number (yyyymmdd) from a date like "28 ก.ย. 2569", "28/9/2569" or "2026-09-28"; 0 if unreadable.
-const TH_MONTHS = ['มค|มกร', 'กพ|กุม', 'มีค|มีน', 'เมย|เมษ', 'พค|พฤษ', 'มิย|มิถ', 'กค|กรก', 'สค|สิง', 'กย|กัน', 'ตค|ตุล', 'พย|พฤศ', 'ธค|ธัน']
-  .map(p => new RegExp('^(' + p + ')'));
-function dateKey(v) {
-  const s = String(v ?? '').trim();
-  let d, m, y, x;
-  if ((x = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
-  else if ((x = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/))) [d, m, y] = [+x[1], +x[2], +x[3]];
-  else if ((x = s.match(/(\d{1,2})\s*([ก-๙.]+)\s*(\d{2,4})/))) {
-    const name = x[2].replace(/\./g, '');
-    [d, m, y] = [+x[1], TH_MONTHS.findIndex(re => re.test(name)) + 1, +x[3]];
-  }
-  if (!d || !m || !y) return 0;
-  if (y < 100) y += 2500;
-  if (y > 2400) y -= 543; // พ.ศ. → ค.ศ.
-  return y * 10000 + m * 100 + d;
-}
-// Newest first: by date; rows with the same (or no) date keep later sheet rows on top.
-const newestFirst = list => list.map((item, i) => [dateKey(item.date), i, item])
-  .sort((a, b) => b[0] - a[0] || b[1] - a[1]).map(x => x[2]);
+// Newest first: rows are added at the bottom of the sheet, so the last row goes on top.
+const newestFirst = list => [...list].reverse();
 
 // Timeline: latest year first (year = first 4-digit number in the "year" cell); same year keeps later sheet rows on top.
 const latestYearFirst = list => list.map((item, i) => [+(String(item.year ?? '').match(/\d{4}/) || [0])[0], i, item])
@@ -584,8 +566,10 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   const slider = $('#slider');
   if (slider) {
     slider.querySelectorAll('.slide').forEach(el => el.remove());
-    slider.insertAdjacentHTML('afterbegin', NEWS.filter(n => n.slide).map(n => `
-      <a class="slide${n.image ? ' has-pic' : ''}" href="article.html?type=news&id=${esc(n.id)}">
+    // Latest 3 news marked "slide", then the latest 2 articles.
+    const picks = [...NEWS.filter(n => n.slide).slice(0, 3).map(n => [n, 'news']), ...ARTICLES.slice(0, 2).map(a => [a, 'knowledge'])];
+    slider.insertAdjacentHTML('afterbegin', picks.map(([n, type]) => `
+      <a class="slide${n.image ? ' has-pic' : ''}" href="article.html?type=${type}&id=${esc(n.id)}">
         <div class="bg" style="background-image:${n.image ? `url(${esc(n.image)})` : 'linear-gradient(120deg,#2FA67A,#BFD78E 55%,#EFD84E)'}"></div>
         ${n.image ? `<div class="ph" style="background-image:url(${esc(n.image)})"></div>` : ''}
         <div class="txt"><small>${esc(n.tag)}</small><h3>${esc(n.title)}</h3><p>${esc(n.summary)}</p></div>

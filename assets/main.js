@@ -533,7 +533,8 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     const money = v => v.toLocaleString('th-TH', { minimumFractionDigits: v % 1 ? 1 : 0, maximumFractionDigits: 2 });
     const isOpen = (h, t) => Object.values(h.cells[t] || {}).some(c => c.open);
     const st = render.herbs ||= { type: 'normal', q: '', onlyOpen: true };
-    $('#h-updated').textContent = SITE.herbsUpdated || '-';
+    $('#h-year').textContent = SITE.herbsYear ? '📅 ' + SITE.herbsYear : '';
+    $('#h-updated').textContent = SITE.herbsUpdated ? `อัปเดต ${SITE.herbsUpdated}` : '';
     $('#h-gap').textContent = '';
     $('#h-org').textContent = '';
     const draw = render.drawHerbs = () => {

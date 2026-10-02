@@ -129,6 +129,10 @@ function dateKey(v) {
 const newestFirst = list => list.map((item, i) => [dateKey(item.date), i, item])
   .sort((a, b) => b[0] - a[0] || b[1] - a[1]).map(x => x[2]);
 
+// Timeline: latest year first (year = first 4-digit number in the "year" cell); same year keeps later sheet rows on top.
+const latestYearFirst = list => list.map((item, i) => [+(String(item.year ?? '').match(/\d{4}/) || [0])[0], i, item])
+  .sort((a, b) => b[0] - a[0] || b[1] - a[1]).map(x => x[2]);
+
 // Copies raw sheet rows into the site data (SITE, DRUGS, ...).
 function applySheets(raw) {
   const { settings, news, articles, history, herbPrices, herbCover, drugs, drugCover } = raw;
@@ -144,8 +148,9 @@ function applySheets(raw) {
   if (articles?.length) ARTICLES = newestFirst(articles.filter(shown).map((r, i) => ({
     ...withImages(r), id: r.id || 'k' + i, body: paras(r.body), icon: r.icon || '📖'
   })));
-  if (history?.length) HISTORY = history.filter(shown).filter(r => r.year || r.text)
-    .map(withImages);  if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
+  if (history?.length) HISTORY = latestYearFirst(history.filter(shown).filter(r => r.year || r.text)
+    .map(withImages));
+  if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
   const upd = herbCover?.find(r => /^อัปเดต/.test(String(r.key)));
   if (upd?.value) SITE.herbsUpdated = upd.value;
   const year = herbCover?.find(r => /^ปีงบ/.test(String(r.key)));
@@ -158,7 +163,7 @@ const readCache = () => { try { return localStorage.getItem(CACHE_KEY); } catch 
 const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /* storage unavailable */ } };
 
 (function start() {
-  NEWS = newestFirst(NEWS.map(withImages)); ARTICLES = newestFirst(ARTICLES.map(withImages)); HISTORY = HISTORY.map(withImages);
+  NEWS = newestFirst(NEWS.map(withImages)); ARTICLES = newestFirst(ARTICLES.map(withImages)); HISTORY = latestYearFirst(HISTORY.map(withImages));
   if (!$('#site-header')) return; // standalone pages (e.g. the printable price sheet)
   /* ---------- Header & footer ---------- */
   const NAV = [

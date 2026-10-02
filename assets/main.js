@@ -108,6 +108,27 @@ function buildDrugs(rows) {
   }).filter(d => d.name && (d.show === '' || yes(d.show)));
 }
 
+// Sortable number (yyyymmdd) from a date like "28 ก.ย. 2569", "28/9/2569" or "2026-09-28"; 0 if unreadable.
+const TH_MONTHS = ['มค|มกร', 'กพ|กุม', 'มีค|มีน', 'เมย|เมษ', 'พค|พฤษ', 'มิย|มิถ', 'กค|กรก', 'สค|สิง', 'กย|กัน', 'ตค|ตุล', 'พย|พฤศ', 'ธค|ธัน']
+  .map(p => new RegExp('^(' + p + ')'));
+function dateKey(v) {
+  const s = String(v ?? '').trim();
+  let d, m, y, x;
+  if ((x = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
+  else if ((x = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/))) [d, m, y] = [+x[1], +x[2], +x[3]];
+  else if ((x = s.match(/(\d{1,2})\s*([ก-๙.]+)\s*(\d{2,4})/))) {
+    const name = x[2].replace(/\./g, '');
+    [d, m, y] = [+x[1], TH_MONTHS.findIndex(re => re.test(name)) + 1, +x[3]];
+  }
+  if (!d || !m || !y) return 0;
+  if (y < 100) y += 2500;
+  if (y > 2400) y -= 543; // พ.ศ. → ค.ศ.
+  return y * 10000 + m * 100 + d;
+}
+// Newest first: by date; rows with the same (or no) date keep later sheet rows on top.
+const newestFirst = list => list.map((item, i) => [dateKey(item.date), i, item])
+  .sort((a, b) => b[0] - a[0] || b[1] - a[1]).map(x => x[2]);
+
 // Copies raw sheet rows into the site data (SITE, DRUGS, ...).
 function applySheets(raw) {
   const { settings, news, articles, history, herbPrices, herbCover, drugs, drugCover } = raw;
@@ -117,15 +138,14 @@ function applySheets(raw) {
   const cover = (rows, re) => rows?.find(r => re.test(String(r[0]).trim()))?.[1]?.trim();
   SITE.drugsUpdated = cover(drugCover, /^อัปเดต/) || SITE.drugsUpdated;
   SITE.drugsYear = cover(drugCover, /^ปีงบ/) || SITE.drugsYear;
-  if (news?.length) NEWS = news.filter(shown).map((r, i) => ({
+  if (news?.length) NEWS = newestFirst(news.filter(shown).map((r, i) => ({
     ...withImages(r), id: r.id || 'n' + i, slide: yes(r.slide), body: paras(r.body)
-  }));
-  if (articles?.length) ARTICLES = articles.filter(shown).map((r, i) => ({
+  })));
+  if (articles?.length) ARTICLES = newestFirst(articles.filter(shown).map((r, i) => ({
     ...withImages(r), id: r.id || 'k' + i, body: paras(r.body), icon: r.icon || '📖'
-  }));
+  })));
   if (history?.length) HISTORY = history.filter(shown).filter(r => r.year || r.text)
-    .map(withImages);
-  if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
+    .map(withImages);  if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
   const upd = herbCover?.find(r => /^อัปเดต/.test(String(r.key)));
   if (upd?.value) SITE.herbsUpdated = upd.value;
   const year = herbCover?.find(r => /^ปีงบ/.test(String(r.key)));
@@ -138,7 +158,7 @@ const readCache = () => { try { return localStorage.getItem(CACHE_KEY); } catch 
 const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /* storage unavailable */ } };
 
 (function start() {
-  NEWS = NEWS.map(withImages); ARTICLES = ARTICLES.map(withImages); HISTORY = HISTORY.map(withImages);
+  NEWS = newestFirst(NEWS.map(withImages)); ARTICLES = newestFirst(ARTICLES.map(withImages)); HISTORY = HISTORY.map(withImages);
   if (!$('#site-header')) return; // standalone pages (e.g. the printable price sheet)
   /* ---------- Header & footer ---------- */
   const NAV = [

@@ -43,6 +43,10 @@ const driveImg = url => {
   const m = String(url).match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);
   return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600` : url;
 };
+// Up to three pictures per row: columns image1, image2, image3 (a single
+// "image" column still works). The first one is the cover / banner / thumbnail.
+const rowImages = r => [r.image1 || r.image, r.image2, r.image3].filter(v => v && !/^[-–—]+$/.test(v)).map(driveImg);
+const withImages = r => { const images = r.images || rowImages(r); return { ...r, images, image: images[0] || '' }; };
 
 // Fetches every tab as raw rows. Returns null when the sheet can't be reached.
 async function fetchSheets() {
@@ -114,13 +118,13 @@ function applySheets(raw) {
   SITE.drugsUpdated = cover(drugCover, /^อัปเดต/) || SITE.drugsUpdated;
   SITE.drugsYear = cover(drugCover, /^ปีงบ/) || SITE.drugsYear;
   if (news?.length) NEWS = news.filter(shown).map((r, i) => ({
-    ...r, id: r.id || 'n' + i, slide: yes(r.slide), body: paras(r.body), image: r.image ? driveImg(r.image) : ''
+    ...withImages(r), id: r.id || 'n' + i, slide: yes(r.slide), body: paras(r.body)
   }));
   if (articles?.length) ARTICLES = articles.filter(shown).map((r, i) => ({
-    ...r, id: r.id || 'k' + i, body: paras(r.body), icon: r.icon || '📖', image: r.image ? driveImg(r.image) : ''
+    ...withImages(r), id: r.id || 'k' + i, body: paras(r.body), icon: r.icon || '📖'
   }));
   if (history?.length) HISTORY = history.filter(shown).filter(r => r.year || r.text)
-    .map(r => ({ ...r, image: r.image ? driveImg(r.image) : '' }));
+    .map(withImages);
   if (herbPrices?.length) HERB_PRICES = buildHerbPrices(herbPrices);
   const upd = herbCover?.find(r => /^อัปเดต/.test(String(r.key)));
   if (upd?.value) SITE.herbsUpdated = upd.value;
@@ -134,6 +138,7 @@ const readCache = () => { try { return localStorage.getItem(CACHE_KEY); } catch 
 const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /* storage unavailable */ } };
 
 (function start() {
+  NEWS = NEWS.map(withImages); ARTICLES = ARTICLES.map(withImages); HISTORY = HISTORY.map(withImages);
   if (!$('#site-header')) return; // standalone pages (e.g. the printable price sheet)
   /* ---------- Header & footer ---------- */
   const NAV = [
@@ -243,6 +248,14 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       </div>
     </a>`;
 
+  // 1-3 pictures, never cropped; each opens full size in a new tab. With 2-3
+  // pictures each one's width follows its shape, so the row has one height.
+  const gallery = (item, alt) => {
+    const list = item.images || [];
+    return list.length ? `<div class="gallery g${list.length}">${list.map(src =>
+      `<a href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="${esc(alt)}" onload="this.parentNode.style.flexGrow=this.naturalWidth/this.naturalHeight"></a>`).join('')}</div>` : '';
+  };
+
   const pic = (item, fallback) => item.image
     ? `style="background-image:url(${esc(item.image)});background-position:${esc(item.imagePos || 'center')}"`
     : `style="background:${fallback}"`;
@@ -316,7 +329,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   fill('#home-news', NEWS.slice(0, 3).map(n => listItem(n, 'news')).join(''));
   fill('#home-knowledge', ARTICLES.slice(0, 3).map(a => listItem(a, 'knowledge')).join(''));
   fill('#timeline', HISTORY.map(h => `
-    <li><b>${esc(h.year)}</b><p>${esc(h.text)}</p>${h.image ? `<a href="${esc(h.image)}" target="_blank" rel="noopener"><img src="${esc(h.image)}" alt="${esc(h.text)}" loading="lazy"></a>` : ''}</li>`).join(''));
+    <li><b>${esc(h.year)}</b><div><p>${esc(h.text)}</p>${gallery(h, h.year || h.text)}</div></li>`).join(''));
   // Paged lists (news, knowledge): 12 per page, page kept in the URL (?page=2)
   const PER_PAGE = 12;
   const qsGet = k => new URLSearchParams(location.search).get(k);
@@ -478,7 +491,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       $('#a-title').textContent = item.title;
       $('#a-meta').innerHTML = `<span class="tag">${esc(item.tag)}</span>${item.date ? esc(item.date) : `อ่าน ${esc(item.read)} นาที`}`;
       art.innerHTML = `
-        <div class="cover" ${pic(item, type === 'news' ? 'linear-gradient(120deg,#2FA67A,#EFD84E)' : 'var(--green-soft)')}>${item.image ? '' : esc(item.icon || '📢')}</div>
+        ${gallery(item, item.title) || `<div class="cover" style="background:${type === 'news' ? 'linear-gradient(120deg,#2FA67A,#EFD84E)' : 'var(--green-soft)'}">${esc(item.icon || '📢')}</div>`}
         ${item.body.map(p => `<p>${esc(p)}</p>`).join('')}
         <a class="back" href="${backHref}">← กลับไปหน้า${backLabel}</a>`;
     }
@@ -547,10 +560,9 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   if (slider) {
     slider.querySelectorAll('.slide').forEach(el => el.remove());
     slider.insertAdjacentHTML('afterbegin', NEWS.filter(n => n.slide).map(n => `
-      <a class="slide" href="article.html?type=news&id=${esc(n.id)}" style="${n.image
-        ? `background-image:url(${esc(n.image)});background-position:${esc(n.imagePos || 'right bottom')}`
-        : 'background-image:linear-gradient(120deg,#2FA67A,#BFD78E 55%,#EFD84E)'}">
-        <div class="bg"></div>
+      <a class="slide${n.image ? ' has-pic' : ''}" href="article.html?type=news&id=${esc(n.id)}">
+        <div class="bg" style="background-image:${n.image ? `url(${esc(n.image)})` : 'linear-gradient(120deg,#2FA67A,#BFD78E 55%,#EFD84E)'}"></div>
+        ${n.image ? `<div class="ph" style="background-image:url(${esc(n.image)})"></div>` : ''}
         <div class="txt"><small>${esc(n.tag)}</small><h3>${esc(n.title)}</h3><p>${esc(n.summary)}</p></div>
       </a>`).join(''));
     const sl = render.slider ||= { cur: 0, timer: 0 };

@@ -56,7 +56,7 @@ async function fetchSheets() {
       .then(raw ? csvRows : parseCSV).catch(() => null);
   const jobs = [
     ...['settings', 'news', 'articles', 'history'].map(t => [t, SHEET_ID, t]),
-    ['herbPrices', HERB_SHEET_ID, 'ราคา'], ['herbCover', HERB_SHEET_ID, 'ปก'],
+    ['herbPrices', HERB_SHEET_ID, 'ราคา'], ['herbCover', HERB_SHEET_ID, 'ปก'], ['herbWants', HERB_SHEET_ID, 'ปริมาณ', true],
     ['drugs', DRUG_SHEET_ID, 'ยา', true], ['drugCover', DRUG_SHEET_ID, 'ปก', true]
   ];
   const rows = await Promise.all(jobs.map(([, id, tab, raw]) => get(id, tab, raw)));
@@ -78,6 +78,20 @@ function buildHerbPrices(rows) {
     (h.cells[t] ||= {})[(grade || 'A').toUpperCase()] = { price: parseFloat(price.replace(/,/g, '')), open: truthy(status) };
   });
   return [...byName.values()];
+}
+
+// Wanted-quantity rows (header row first) -> [{ name, unit, qty, note }]. Columns
+// are found by header name. Google returns the first tab when "ปริมาณ" does not
+// exist, so rows without the expected headers give an empty list.
+function buildHerbWants(rows) {
+  const [head = [], ...data] = rows;
+  const heads = head.map(h => String(h).trim().toLowerCase());
+  const col = re => heads.findIndex(h => re.test(h));
+  const at = { name: col(/^รายการ/), qty: col(/^ปริมาณ/), unit: col(/^(unit|หน่วย)/), note: col(/^หมายเหตุ/), show: col(/^show/) };
+  if (at.name < 0 || at.qty < 0) return [];
+  const cell = (r, i) => i < 0 ? '' : String(r[i] ?? '').trim();
+  return data.filter(r => cell(r, at.name) && cell(r, at.qty) && (cell(r, at.show) === '' || yes(cell(r, at.show))))
+    .map(r => ({ name: cell(r, at.name), unit: cell(r, at.unit), qty: cell(r, at.qty), note: cell(r, at.note) }));
 }
 
 // Drug list rows (header row first) -> one object per visible item. Columns are
@@ -117,7 +131,7 @@ const latestYearFirst = list => list.map((item, i) => [+(String(item.year ?? '')
 
 // Copies raw sheet rows into the site data (SITE, DRUGS, ...).
 function applySheets(raw) {
-  const { settings, news, articles, history, herbPrices, herbCover, drugs, drugCover } = raw;
+  const { settings, news, articles, history, herbPrices, herbCover, herbWants, drugs, drugCover } = raw;
   if (settings) settings.forEach(r => { if (r.key && r.value) SITE[r.key] = r.value; });
   if (drugs?.length > 1) DRUGS = buildDrugs(drugs);
   // "ปก" tab: rows of [key, value, ...]
@@ -137,6 +151,9 @@ function applySheets(raw) {
   if (upd?.value) SITE.herbsUpdated = upd.value;
   const year = herbCover?.find(r => /^ปีงบ/.test(String(r.key)));
   if (year?.value) SITE.herbsYear = year.value;
+  if (herbWants) HERB_WANTS = buildHerbWants(herbWants);
+  const wantsUpd = herbCover?.find(r => /^ปริมาณ/.test(String(r.key)));
+  if (wantsUpd?.value) SITE.wantsUpdated = wantsUpd.value;
 }
 
 // The last sheet data this browser saw, so repeat visits render instantly.
@@ -543,6 +560,15 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       $('#h-search').addEventListener('input', e => { st.q = e.target.value.trim(); render.drawHerbs(); });
       $('#h-open').addEventListener('change', e => { st.onlyOpen = e.target.checked; render.drawHerbs(); });
     });
+    // Quantity still wanted; the section stays hidden until the sheet has the tab
+    $('#w-section').hidden = !HERB_WANTS.length;
+    $('#w-year').textContent = SITE.herbsYear ? ' ' + SITE.herbsYear : '';
+    $('#w-updated').textContent = SITE.wantsUpdated ? `(อัปเดต ${SITE.wantsUpdated})` : '';
+    $('#w-body').innerHTML = HERB_WANTS.map((w, i) => {
+      const n = Number(w.qty.replace(/,/g, ''));
+      const qty = isNaN(n) ? esc(w.qty) : n > 0 ? `<b>${n.toLocaleString('th-TH')}</b> <small>${esc(w.unit || 'กิโลกรัม')}</small>` : 'ครบแล้ว';
+      return `<tr class="${n === 0 ? 'closed' : ''}"><td>${i + 1}</td><td class="name">${esc(w.name)}</td><td class="num">${qty}</td><td>${esc(w.note)}</td></tr>`;
+    }).join('');
     $('#h-tel').href = 'tel:' + SITE.phone.replace(/[^0-9+]/g, '');
     $('#h-line').href = SITE.lineUrl;
     draw();

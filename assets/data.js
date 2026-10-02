@@ -7,6 +7,9 @@ const SHEET_ID = '1f0HjI4xGR5Fzta1V1wR586-URVJX8W0APeBmnUZqkLo';
 // herb x plot type x grade, columns in this order: date, item, plot type
 // (ทั่วไป / GAP / Organic), grade (A/B/C), unit, price, show, status (TRUE = buying).
 // Tab "ปก": key/value rows; the key starting with "อัปเดต" is the update date.
+// Tab "ปริมาณ" (optional): how much of each herb is still wanted, columns matched
+// by header: รายการ, unit, ปริมาณ..., หมายเหตุ, show. Its update date is the "ปก"
+// row whose key starts with "ปริมาณ".
 const HERB_SHEET_ID = '1A39S4t1_z1dGhEDE0SGXueMWPJZbL9cqO6CGROCvSwo';
 
 // Drug list (products page). Tab "ยา": one row per item, columns matched by their
@@ -31,6 +34,7 @@ const SITE = {
   mapUrl: 'https://maps.app.goo.gl/HVPosHJZ9CvTgshn6',
   herbsUpdated: '', // filled from the herb price sheet
   herbsYear: '',
+  wantsUpdated: '', // filled from the herb price sheet
   drugsUpdated: '', // filled from the drug sheet
   drugsYear: '',
   gradeB: 70,       // % of grade A price
@@ -82,4 +86,5 @@ let HISTORY = [
 // Herb buying prices, filled from HERB_SHEET_ID (no built-in copy, so stale
 // prices are never shown).
 let HERB_PRICES = [];
+let HERB_WANTS = [];
 

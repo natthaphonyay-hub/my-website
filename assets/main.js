@@ -248,12 +248,12 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
       </div>
     </a>`;
 
-  // 1-3 pictures, never cropped; each opens full size in a new tab. With 2-3
-  // pictures each one's width follows its shape, so the row has one height.
+  // 1-3 pictures in equal landscape frames; each opens full size in a new tab.
+  // The whole picture is shown; a blurred copy fills the rest of the frame.
   const gallery = (item, alt) => {
     const list = item.images || [];
     return list.length ? `<div class="gallery g${list.length}">${list.map(src =>
-      `<a href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="${esc(alt)}" onload="this.parentNode.style.flexGrow=this.naturalWidth/this.naturalHeight"></a>`).join('')}</div>` : '';
+      `<a href="${esc(src)}" target="_blank" rel="noopener" style="background-image:url(${esc(src)})"><img src="${esc(src)}" alt="${esc(alt)}" loading="lazy"></a>`).join('')}</div>` : '';
   };
 
   const pic = (item, fallback) => item.image

@@ -8,7 +8,7 @@ const SHEET_ID = '1f0HjI4xGR5Fzta1V1wR586-URVJX8W0APeBmnUZqkLo';
 // (ทั่วไป / GAP / Organic), grade (A/B/C), unit, price, show, status (TRUE = buying).
 // Tab "ปก": key/value rows; the key starting with "อัปเดต" is the update date.
 // Tab "ปริมาณ" (optional): how much of each herb is still wanted, columns matched
-// by header: รายการ, unit, ปริมาณ..., หมายเหตุ, show. Its update date is the "ปก"
+// by header: รายการ, unit, ปริมาณ...ทั้งปี, ปริมาณที่ยัง..., หมายเหตุ, show. Its update date is the "ปก"
 // row whose key starts with "ปริมาณ".
 const HERB_SHEET_ID = '1A39S4t1_z1dGhEDE0SGXueMWPJZbL9cqO6CGROCvSwo';
 

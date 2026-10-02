@@ -87,13 +87,16 @@ function buildHerbWants(rows) {
   const [head = [], ...data] = rows;
   const heads = head.map(h => String(h).trim().toLowerCase());
   const col = re => heads.findIndex(h => re.test(h));
-  const at = { name: col(/^รายการ/), qty: col(/^ปริมาณ/), unit: col(/^(unit|หน่วย)/), note: col(/^หมายเหตุ/), show: col(/^show/) };
+  const total = col(/^ปริมาณ.*ทั้ง\s*ปี/);
+  // "Still wanted" column; with no such header, the first other "ปริมาณ..." column.
+  const still = col(/^ปริมาณ.*ยัง/);
+  const at = { name: col(/^รายการ/), total, qty: still >= 0 ? still : heads.findIndex((h, i) => i !== total && /^ปริมาณ/.test(h)), unit: col(/^(unit|หน่วย)/), note: col(/^หมายเหตุ/), show: col(/^show/) };
   if (at.name < 0 || at.qty < 0) return [];
   const cell = (r, i) => i < 0 ? '' : String(r[i] ?? '').trim();
   // Largest quantity first; equal quantities keep the sheet order, non-numbers go last.
   const amount = w => { const n = Number(w.qty.replace(/,/g, '')); return isNaN(n) ? -1 : n; };
   return data.filter(r => cell(r, at.name) && cell(r, at.qty) && (cell(r, at.show) === '' || yes(cell(r, at.show))))
-    .map(r => ({ name: cell(r, at.name), unit: cell(r, at.unit), qty: cell(r, at.qty), note: cell(r, at.note) }))
+    .map(r => ({ name: cell(r, at.name), unit: cell(r, at.unit), qty: cell(r, at.qty), total: cell(r, at.total), note: cell(r, at.note) }))
     .sort((a, b) => amount(b) - amount(a));
 }
 
@@ -570,7 +573,9 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     $('#w-body').innerHTML = HERB_WANTS.map((w, i) => {
       const n = Number(w.qty.replace(/,/g, ''));
       const qty = isNaN(n) ? esc(w.qty) : n > 0 ? `<b>${n.toLocaleString('th-TH')}</b> <small>${esc(w.unit || 'กิโลกรัม')}</small>` : 'ครบแล้ว';
-      return `<tr class="${n === 0 ? 'closed' : ''}"><td>${i + 1}</td><td class="name">${esc(w.name)}</td><td class="num">${qty}</td><td>${esc(w.note)}</td></tr>`;
+      const t = Number(w.total.replace(/,/g, ''));
+      const total = !w.total ? '' : isNaN(t) ? esc(w.total) : `${t.toLocaleString('th-TH')} <small>${esc(w.unit || 'กิโลกรัม')}</small>`;
+      return `<tr class="${n === 0 ? 'closed' : ''}"><td>${i + 1}</td><td class="name">${esc(w.name)}</td><td class="num total">${total}</td><td class="num">${qty}</td><td>${esc(w.note)}</td></tr>`;
     }).join('');
     $('#h-tel').href = 'tel:' + SITE.phone.replace(/[^0-9+]/g, '');
     $('#h-line').href = SITE.lineUrl;

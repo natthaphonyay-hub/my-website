@@ -88,6 +88,11 @@ section { padding: 96px 0 0; }
 .head h2 { font-size: 30px; margin: 0; font-weight: 600; }
 .head a { color: var(--green); font-size: 16px; white-space: nowrap; }
 .eyebrow { color: var(--green); font-size: 14px; letter-spacing: .08em; margin-bottom: 4px; }
+.period { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; font-family: "Prompt", sans-serif; }
+.period span { padding: 6px 18px; border-radius: 999px; font-size: 17px; font-weight: 500; }
+.period span:empty { display: none; }
+.period .yr { background: var(--green); color: #fff; box-shadow: 0 4px 12px rgba(31,122,77,.22); }
+.period .upd { background: #FBF3CC; color: #5A4D0C; }
 
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .card {

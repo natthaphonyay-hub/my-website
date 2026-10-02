@@ -90,8 +90,11 @@ function buildHerbWants(rows) {
   const at = { name: col(/^รายการ/), qty: col(/^ปริมาณ/), unit: col(/^(unit|หน่วย)/), note: col(/^หมายเหตุ/), show: col(/^show/) };
   if (at.name < 0 || at.qty < 0) return [];
   const cell = (r, i) => i < 0 ? '' : String(r[i] ?? '').trim();
+  // Largest quantity first; equal quantities keep the sheet order, non-numbers go last.
+  const amount = w => { const n = Number(w.qty.replace(/,/g, '')); return isNaN(n) ? -1 : n; };
   return data.filter(r => cell(r, at.name) && cell(r, at.qty) && (cell(r, at.show) === '' || yes(cell(r, at.show))))
-    .map(r => ({ name: cell(r, at.name), unit: cell(r, at.unit), qty: cell(r, at.qty), note: cell(r, at.note) }));
+    .map(r => ({ name: cell(r, at.name), unit: cell(r, at.unit), qty: cell(r, at.qty), note: cell(r, at.note) }))
+    .sort((a, b) => amount(b) - amount(a));
 }
 
 // Drug list rows (header row first) -> one object per visible item. Columns are
@@ -562,8 +565,8 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     });
     // Quantity still wanted; the section stays hidden until the sheet has the tab
     $('#w-section').hidden = !HERB_WANTS.length;
-    $('#w-year').textContent = SITE.herbsYear ? ' ' + SITE.herbsYear : '';
-    $('#w-updated').textContent = SITE.wantsUpdated ? `(อัปเดต ${SITE.wantsUpdated})` : '';
+    $('#w-year').textContent = SITE.herbsYear ? '📅 ' + SITE.herbsYear : '';
+    $('#w-updated').textContent = SITE.wantsUpdated ? `อัปเดต ${SITE.wantsUpdated}` : '';
     $('#w-body').innerHTML = HERB_WANTS.map((w, i) => {
       const n = Number(w.qty.replace(/,/g, ''));
       const qty = isNaN(n) ? esc(w.qty) : n > 0 ? `<b>${n.toLocaleString('th-TH')}</b> <small>${esc(w.unit || 'กิโลกรัม')}</small>` : 'ครบแล้ว';

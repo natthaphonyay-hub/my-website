@@ -145,7 +145,7 @@ header.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
 .slide.active .bg { transform: scale(1.08); }
 .slide .bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform 7s ease-out; }
 .slide::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(20,50,35,.78) 0%, rgba(20,50,35,.35) 55%, transparent 100%); }
-.slide .txt { position: relative; z-index: 2; color: #fff; padding: 40px 48px; max-width: 560px; }
+.slide .txt { position: relative; z-index: 2; color: #fff; padding: 40px 48px 40px 80px; max-width: 560px; }
 /* Slide with a photo: the whole photo is shown (never cropped) on the right,
    over a blurred copy of itself that fills the rest of the banner. */
 .slide.has-pic { background: #1E3B2C; }

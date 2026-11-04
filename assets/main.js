@@ -189,7 +189,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
         <span>พนาพรรณ</span>
       </a>
       <nav>
-        <button class="menu-btn" aria-label="เมนู">☰</button>
+        <button class="menu-btn" aria-label="เมนู" aria-expanded="false">☰</button>
         <ul>${NAV.map(([id, href, label]) =>
           `<li><a href="${href}"${id === page ? ' class="active" aria-current="page"' : ''}>${label}</a></li>`).join('')}</ul>
       </nav>
@@ -199,7 +199,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   const cached = readCache();
   if (cached) try { applySheets(JSON.parse(cached)); } catch { /* ignore a corrupt cache */ }
 
-  $('.menu-btn').onclick = () => $('nav ul').classList.toggle('open');
+  $('.menu-btn').onclick = e => e.currentTarget.setAttribute('aria-expanded', $('nav ul').classList.toggle('open'));
   const header = $('header');
   addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 10), { passive: true });
 
@@ -215,7 +215,7 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
         <div>
           <div class="logos">
             <img src="assets/logo-center.png" alt="ศูนย์แพทย์แผนไทยพนา">
-            <img src="assets/logo-hospital.png" alt="โรงพยาบาลพนา">
+            <img src="assets/logo-hospital.webp" alt="โรงพยาบาลพนา">
           </div>
           <p>โรงงานผลิตยาสมุนไพร ศูนย์แพทย์แผนไทยพนา<br>โรงพยาบาลพนา อ.พนา จ.อำนาจเจริญ</p>
         </div>

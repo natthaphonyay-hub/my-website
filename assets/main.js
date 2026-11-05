@@ -488,6 +488,8 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
   // Knowledge: tag chips
   const alist = $('#article-list');
   if (alist) {
+    // No article shown in the sheet: hide the whole section (heading, chips, list); it returns when rows are shown again
+    alist.closest('section').hidden = !ARTICLES.length;
     const tags = ['ทั้งหมด', ...new Set(ARTICLES.map(a => a.tag))];
     render.tag ??= qsGet('tag') || 'ทั้งหมด';
     if (!tags.includes(render.tag)) render.tag = 'ทั้งหมด';

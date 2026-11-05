@@ -368,6 +368,15 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     if (v && v !== 1 && v !== 'ทั้งหมด') q.set(k, v); else q.delete(k);
     history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : ''));
   };
+  // Search boxes (knowledge, news): case and spaces ignored, so "ปวด เข่า" finds "ปวดเข่า"
+  const squash = s => String(s ?? '').toLowerCase().replace(/\s+/g, '');
+  const matches = (item, q) => !q || squash([item.title, item.summary, item.tag, item.date, ...(item.body || [])].join(' ')).includes(squash(q));
+  // Wire a search box once: keeps ?q= in the URL and goes back to page 1 on each change
+  const searchBox = (sel, st, redraw) => once(sel, () => {
+    const box = $(sel); if (!box) return;
+    box.value = st.q;
+    box.addEventListener('input', () => { st.q = box.value.trim(); qsSet('q', st.q); qsSet('page', 1); redraw(); });
+  });
   function paged(box, list, row, redraw) {
     const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
     const cur = Math.min(pages, Math.max(1, parseInt(qsGet('page')) || 1));
@@ -388,7 +397,16 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     };
   }
   const nlist = $('#news-list');
-  if (nlist) (render.drawNews = () => paged(nlist, NEWS, n => postRow(n, 'news'), render.drawNews))();
+  if (nlist) {
+    const st = render.news ||= { q: qsGet('q') || '' };
+    render.drawNews = () => {
+      const list = NEWS.filter(n => matches(n, st.q));
+      paged(nlist, list, n => postRow(n, 'news'), render.drawNews);
+      const empty = $('#n-empty'); if (empty) empty.hidden = list.length > 0;
+    };
+    searchBox('#n-search', st, () => render.drawNews());
+    render.drawNews();
+  }
 
   // Products: featured slider + drug table with unit / status filters
   const dbody = $('#d-body');
@@ -493,7 +511,13 @@ const writeCache = v => { try { localStorage.setItem(CACHE_KEY, v); } catch { /*
     const tags = ['ทั้งหมด', ...new Set(ARTICLES.map(a => a.tag))];
     render.tag ??= qsGet('tag') || 'ทั้งหมด';
     if (!tags.includes(render.tag)) render.tag = 'ทั้งหมด';
-    const draw = () => paged(alist, ARTICLES.filter(a => render.tag === 'ทั้งหมด' || a.tag === render.tag), a => postRow(a, 'knowledge'), render.drawArticles);
+    const st = render.know ||= { q: qsGet('q') || '' };
+    const draw = () => {
+      const list = ARTICLES.filter(a => (render.tag === 'ทั้งหมด' || a.tag === render.tag) && matches(a, st.q));
+      paged(alist, list, a => postRow(a, 'knowledge'), render.drawArticles);
+      const empty = $('#k-empty'); if (empty) empty.hidden = list.length > 0;
+    };
+    searchBox('#k-search', st, () => render.drawArticles());
     $('#tag-chips').innerHTML = tags.map(t => `<button class="chip${t === render.tag ? ' on' : ''}">${esc(t)}</button>`).join('');
     once('tags', () => $('#tag-chips').addEventListener('click', e => {
       const b = e.target.closest('.chip'); if (!b) return;

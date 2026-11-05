@@ -3,13 +3,14 @@
 // research/index.js names the pages (window.RESEARCH_LIST); each page's own data
 // file supplies its title and quick answer, so nothing is written twice.
 (function () {
-  const VERSION = '20261105v';
+  const VERSION = '20261105x';
   const full = document.getElementById('research-list');
   const compact = document.getElementById('home-research');
   const ids = (window.RESEARCH_LIST || []).filter(id => /^[a-z0-9-]{2,60}$/.test(id));
   if ((!full && !compact) || !ids.length) return;
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const trial = d => d.status !== 'published' ? '<span class="rl-trial">ฉบับทดลอง</span>' : '';
+  const squash = s => String(s ?? '').toLowerCase().replace(/\s+/g, '');
 
   const load = id => new Promise(done => {
     const s = document.createElement('script');
@@ -25,13 +26,25 @@
     if (full) {
       full.querySelector('.rl-list').innerHTML = pages.map(([id, d]) => {
         const s0 = (d.summary || [])[0] || {};
-        return `<li><a class="rl-item" href="${href(id)}">
+        const words = [d.title, d.herb, d.tag, d.scientific, ...(d.summary || []).flatMap(r => [r.q, r.em, r.a]), ...(d.more || []).map(m => m.title)];
+        return `<li data-text="${esc(squash(words.join(' ')))}"><a class="rl-item" href="${href(id)}">
           <span class="rl-meta"><span class="tag">${esc(d.tag)}</span>${esc(d.herb)}${trial(d)}</span>
           <b>${esc(d.title)}</b>
           ${s0.em ? `<span class="rl-answer"><strong>${esc(s0.em)}</strong> ${esc(s0.a)}</span>` : ''}
         </a></li>`;
       }).join('');
       full.hidden = false;
+      // The page's search box (#k-search) filters this list too
+      const box = document.getElementById('k-search');
+      const empty = document.getElementById('rl-empty');
+      const filter = () => {
+        const q = squash(box ? box.value : new URLSearchParams(location.search).get('q'));
+        let shown = 0;
+        full.querySelectorAll('.rl-list li').forEach(li => { const hit = !q || li.dataset.text.includes(q); li.hidden = !hit; shown += hit; });
+        if (empty) empty.hidden = shown > 0;
+      };
+      if (box) box.addEventListener('input', filter);
+      filter();
     }
     if (compact) {
       compact.innerHTML = pages.slice(0, 3).map(([id, d]) =>

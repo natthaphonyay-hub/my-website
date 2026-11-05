@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261105v">
-<link rel="stylesheet" href="assets/research.css?v=20261105v">
+<link rel="stylesheet" href="assets/style.css?v=20261105x">
+<link rel="stylesheet" href="assets/research.css?v=20261105x">
 </head>
 <body data-page="knowledge">
 <div id="site-header"></div>
@@ -22,6 +22,7 @@
     <div class="crumb" id="crumb"><a href="index.html">หน้าแรก</a> / คลังความรู้</div>
     <h1 id="a-title">คลังความรู้</h1>
     <p>ความรู้เรื่องสมุนไพรและการดูแลสุขภาพ อ่านง่าย ใช้ได้จริง</p>
+    <input class="search" id="k-search" type="search" placeholder="🔍 ค้นหาความรู้ เช่น ขมิ้นชัน ปวดเข่า" aria-label="ค้นหาความรู้และสรุปงานวิจัย">
   </div>
 </div>
 
@@ -29,20 +30,22 @@
   <section class="rl" id="research-list" hidden>
     <div class="head"><div><h2>สรุปงานวิจัย</h2><p class="rl-sub">งานวิจัยสมุนไพรสรุปให้อ่านเร็ว มีที่มาทุกข้อ</p></div></div>
     <ul class="rl-list"></ul>
+    <p class="empty" id="rl-empty" hidden>ไม่พบสรุปงานวิจัยที่ค้นหา</p>
   </section>
   <section>
     <div class="head"><h2>บทความ</h2></div>
     <div class="tools"><div class="chips" id="tag-chips"></div></div>
     <div id="article-list"></div>
+    <p class="empty" id="k-empty" hidden>ไม่พบบทความที่ค้นหา</p>
   </section>
 </div>
 </main>
 
 <div id="site-footer"></div>
-<script src="assets/data.js?v=20261105v"></script>
-<script src="assets/plai.js?v=20261105v"></script>
-<script src="assets/main.js?v=20261105v"></script>
-<script src="research/index.js?v=20261105w"></script>
-<script src="assets/research-list.js?v=20261105v"></script>
+<script src="assets/data.js?v=20261105x"></script>
+<script src="assets/plai.js?v=20261105x"></script>
+<script src="assets/main.js?v=20261105x"></script>
+<script src="research/index.js?v=20261105x"></script>
+<script src="assets/research-list.js?v=20261105x"></script>
 </body>
 </html>

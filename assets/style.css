@@ -479,3 +479,6 @@ a.info:hover { border-color: var(--green); transform: translateY(-2px); }
 .pager button.on { background: var(--green); border-color: var(--green); color: #fff; }
 .pager button:disabled { opacity: .4; cursor: default; }
 .pager span { color: var(--muted); padding: 0 2px; }
+
+/* Search box in the page hero (knowledge, news) */
+.page-hero .search { display: block; width: min(100%, 460px); margin-top: 20px; background: rgba(255, 255, 255, .92); }

@@ -3,7 +3,7 @@
 // window.RESEARCH_PAGES[<id>]. All text is escaped; references are numbers that
 // point into the page's own reference list. Data format: research/README.md
 (function () {
-  const VERSION = '20261105t';
+  const VERSION = '20261105u';
   const root = document.getElementById('rp');
   if (!root) return;
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

@@ -8,8 +8,9 @@
 <link rel="icon" href="assets/logo-center.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css?v=20261104b">
+<link rel="stylesheet" href="assets/research.css?v=20261105u">
 </head>
 <body data-page="knowledge">
 <div id="site-header"></div>
@@ -25,7 +26,12 @@
 </div>
 
 <div class="wrap">
+  <section class="rl" id="research-list" hidden>
+    <div class="head"><div><h2>สรุปงานวิจัย</h2><p class="rl-sub">งานวิจัยสมุนไพรสรุปให้อ่านเร็ว มีที่มาทุกข้อ</p></div></div>
+    <ul class="rl-list"></ul>
+  </section>
   <section>
+    <div class="head"><h2>บทความ</h2></div>
     <div class="tools"><div class="chips" id="tag-chips"></div></div>
     <div id="article-list"></div>
   </section>
@@ -36,5 +42,7 @@
 <script src="assets/data.js?v=20261104b"></script>
 <script src="assets/plai.js?v=20261104b"></script>
 <script src="assets/main.js?v=20261104b"></script>
+<script src="research/index.js?v=20261105u"></script>
+<script src="assets/research-list.js?v=20261105u"></script>
 </body>
 </html>

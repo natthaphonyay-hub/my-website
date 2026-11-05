@@ -160,7 +160,7 @@
 
 /* One A4 page: answer, chart, safety, sources. Folded detail stays folded. */
 @media print {
-  @page { size: A4; margin: 12mm 14mm; }
+  @page { size: A4; margin: 10mm 12mm; }
   html, body { background: #fff !important; }
   body { font-size: 9.6pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   header, footer, .line-fab, .leaves, .crumb, .rp-actions, .rp-how, .rp-extra, #site-footer { display: none !important; }
@@ -174,14 +174,14 @@
   .rp-hero .meta { font-size: 8.6pt; }
   .rp-hero .tag { background: var(--green-soft); }
   .rp-draft { margin: 6pt 0 0; padding: 3pt 8pt; font-size: 8.4pt; border-radius: 4pt; }
-  .rp > section { margin-top: 11pt; }
+  .rp > section { margin-top: 7pt; }
   .rp h2 { font-size: 13pt; margin: 0 0 3pt; }
   .rp h3 { font-size: 10pt; margin: 0 0 3pt; }
   .rp li { padding-left: 11pt; margin: 0 0 2.5pt; }
   .rp li::before { width: 4.5pt; height: 4.5pt; top: .62em; left: 0; }
   .rp-sub { font-size: 9pt; }
   .rp .rp-summary { padding: 8pt 12pt 3pt; border-radius: 6pt; }
-  .rp-summary dl > div { grid-template-columns: 24% minmax(0, 1fr); padding: 3.5pt 0; gap: 2pt 10pt; }
+  .rp-summary dl > div { grid-template-columns: 24% minmax(0, 1fr); padding: 2.5pt 0; gap: 2pt 10pt; }
   .rp-summary dt { font-size: 9pt; }
   .rp-summary dd { font-size: 10pt; line-height: 1.4; }
   .rp-forest { margin: 8pt 0 0; }
@@ -208,4 +208,38 @@
   .rp-sources summary { font-size: 9.6pt; color: var(--text); padding: 0 0 2pt; }
   .rp-sources summary::after { display: none; }
   .rp a { color: inherit !important; text-decoration: none !important; }
+}
+
+/* Findings as answer rows: results without one shared scale (assets/research.js points()) */
+.rp .rp-pt { align-items: start; }
+.rp-pt-body p { margin: 2px 0 0; font-size: 16px; line-height: 1.6; }
+.rp-p100 { display: grid; gap: 6px; margin-top: 8px; }
+.rp-p100-row { display: grid; grid-template-columns: minmax(0, 132px) minmax(0, 1fr) 76px; gap: 10px; align-items: center; font-size: 14px; }
+.rp-p100-bar { height: 12px; border-radius: 6px; background: var(--rp-z0); overflow: hidden; }
+.rp-p100-bar i { display: block; height: 100%; border-radius: 6px; background: var(--green); }
+.rp-p100-row.is-ref .rp-p100-bar i { background: #A9A79C; }
+.rp-p100-row b { font: 500 16px/1 "Prompt", sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rp-p100-row b small { font: 400 12px/1 "Sarabun", sans-serif; color: var(--muted); }
+@media (max-width: 640px) {
+  .rp-p100-row { grid-template-columns: minmax(0, 104px) minmax(0, 1fr) 70px; gap: 8px; }
+}
+@media print {
+  .rp-pt-body p { font-size: 9.2pt; line-height: 1.4; margin: 0; }
+  .rp-p100 { gap: 2pt; margin-top: 3pt; }
+  .rp-p100-row { grid-template-columns: 30% minmax(0, 1fr) 15%; gap: 6pt; font-size: 8.4pt; }
+  .rp-p100-bar { height: 6pt; border-radius: 3pt; }
+  .rp-p100-bar i { border-radius: 3pt; }
+  .rp-p100-row b { font-size: 9pt; }
+  .rp-p100-row b small { font-size: 7pt; }
+}
+/* Answer rows: a hairline between rows so each result reads as one block on a phone */
+.rp .rp-points > .rp-pt + .rp-pt { border-top: 1px solid var(--line); padding-top: 14px; }
+@media print {
+  .rp .rp-points > .rp-pt + .rp-pt { padding-top: 5pt; }
+}
+/* Plain meaning of a word used in the summary, e.g. ยาหลอก (assets/research.js GLOSSARY) */
+.rp .rp-summary .rp-gloss { margin: 2px 0 16px; padding-top: 12px; border-top: 1px solid rgba(31, 122, 77, .16); font-size: 15px; line-height: 1.6; color: #4F5B53; }
+.rp-gloss b { color: var(--rp-deep); font-weight: 600; }
+@media print {
+  .rp .rp-summary .rp-gloss { margin: 1pt 0 4pt; padding-top: 3pt; font-size: 8.4pt; line-height: 1.35; }
 }

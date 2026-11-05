@@ -3,7 +3,7 @@
 // research/index.js names the pages (window.RESEARCH_LIST); each page's own data
 // file supplies its title and quick answer, so nothing is written twice.
 (function () {
-  const VERSION = '20261105x';
+  const VERSION = '20261105z';
   const full = document.getElementById('research-list');
   const compact = document.getElementById('home-research');
   const ids = (window.RESEARCH_LIST || []).filter(id => /^[a-z0-9-]{2,60}$/.test(id));

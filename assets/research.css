@@ -36,6 +36,16 @@
 .rp-ref a { text-decoration: none !important; padding: 0 1px; }
 .rp-ref a:hover { text-decoration: underline !important; }
 
+/* Quick summary: one question per row, the answer's key phrase in bold */
+.rp .rp-summary { background: var(--green-soft); border-radius: var(--radius); padding: 26px 28px 10px; }
+.rp-summary dl { margin: 6px 0 0; }
+.rp-summary dl > div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 4px 20px; padding: 12px 0; border-top: 1px solid rgba(31, 122, 77, .16); }
+.rp-summary dl > div:first-child { border-top: 0; }
+.rp-summary dt { font: 500 15px/1.6 "Prompt", sans-serif; color: var(--rp-deep); padding-top: 1px; }
+.rp-summary dt.rp-no { color: var(--rp-no); }
+.rp-summary dd { margin: 0; font-size: 18px; line-height: 1.6; }
+.rp-summary dd b { font-weight: 600; }
+
 /* Findings: a plain-language forest plot */
 .rp-sub { color: var(--muted); font-size: 16px; }
 .rp-forest { margin: 20px 0 6px; }
@@ -115,6 +125,10 @@
 .rp-actions .back { margin-top: 0; }
 
 @media (max-width: 640px) {
+  .rp .rp-summary { padding: 22px 18px 6px; }
+  .rp-summary dl > div { grid-template-columns: 1fr; gap: 0; padding: 10px 0; }
+  .rp-summary dt { font-size: 14px; }
+  .rp-summary dd { font-size: 17px; }
   .rp-dek { font-size: 19px !important; }
   .rp h2 { font-size: 21px; }
   .rp .rp-row, .rp .rp-axis { grid-template-columns: minmax(0, 1fr); }
@@ -145,6 +159,10 @@
   .rp li { padding-left: 11pt; margin: 0 0 2.5pt; }
   .rp li::before { width: 4.5pt; height: 4.5pt; top: .62em; left: 0; }
   .rp-sub { font-size: 9pt; }
+  .rp .rp-summary { padding: 8pt 12pt 3pt; border-radius: 6pt; }
+  .rp-summary dl > div { grid-template-columns: 24% minmax(0, 1fr); padding: 3.5pt 0; gap: 2pt 10pt; }
+  .rp-summary dt { font-size: 9pt; }
+  .rp-summary dd { font-size: 10pt; line-height: 1.4; }
   .rp-forest { margin: 8pt 0 0; }
   .rp-rows { gap: 7pt; }
   .rp .rp-row, .rp .rp-axis { grid-template-columns: 38% minmax(0, 1fr); gap: 2pt 10pt; break-inside: avoid; }

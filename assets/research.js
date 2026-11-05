@@ -3,7 +3,7 @@
 // window.RESEARCH_PAGES[<id>]. All text is escaped; references are numbers that
 // point into the page's own reference list. Data format: research/README.md
 (function () {
-  const VERSION = '20261105s';
+  const VERSION = '20261105t';
   const root = document.getElementById('rp');
   if (!root) return;
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -78,15 +78,20 @@
 
   function render(d) {
     document.title = `${d.title} | พนาพรรณ`;
-    document.querySelector('meta[name="description"]')?.setAttribute('content', d.dek);
+    const s0 = d.summary[0];
+    document.querySelector('meta[name="description"]')?.setAttribute('content', `${s0.em} ${s0.a}`);
     document.getElementById('rp-title').textContent = d.title;
-    document.getElementById('rp-dek').innerHTML = esc(d.dek) + sup(d.dekRefs);
+    document.getElementById('rp-dek').remove();
     document.getElementById('rp-meta').innerHTML =
-      `<span class="tag">${esc(d.tag)}</span><span>${esc(d.herb)} <i lang="la">${esc(d.scientific)}</i></span><span>${esc(d.scale)}</span>`;
+      `<span class="tag">${esc(d.tag)}</span><span>${esc(d.herb)} <i lang="la">${esc(d.scientific)}</i></span>`;
 
     const sf = d.safety;
     root.innerHTML = `
       ${d.status !== 'published' ? `<p class="rp-draft" role="note">${esc(d.statusNote)}</p>` : ''}
+      <section class="rp-summary" aria-labelledby="rp-summary-h">
+        <h2 id="rp-summary-h">สรุปสั้น</h2>
+        <dl>${d.summary.map(r => `<div><dt${r.tone === 'no' ? ' class="rp-no"' : ''}>${esc(r.q)}</dt><dd><b>${esc(r.em)}</b> ${esc(r.a)}${sup(r.refs)}</dd></div>`).join('')}</dl>
+      </section>
       <section class="rp-findings">
         <h2>${esc(d.findings.heading)}</h2>
         <p class="rp-sub">${esc(d.findings.sub)}${sup(d.findings.subRefs)}</p>
@@ -94,7 +99,7 @@
       </section>
       <section class="rp-safety" aria-labelledby="rp-safety-h">
         <h2 id="rp-safety-h">ความปลอดภัย</h2>
-        ${[].concat(sf.frequency).map(f => `<p class="rp-freq">${esc(f.text)}${sup(f.refs)}</p>`).join('')}
+        ${[].concat(sf.frequency || []).map(f => `<p class="rp-freq">${esc(f.text)}${sup(f.refs)}</p>`).join('')}
         <div class="rp-cols">
           <div><h3 class="rp-no">ห้ามใช้${sup(sf.avoidRefs)}</h3>${list(sf.avoid, 'rp-tight')}</div>
           <div><h3>ระวัง${sup(sf.cautionRefs)}</h3>${list(sf.caution, 'rp-tight')}</div>
